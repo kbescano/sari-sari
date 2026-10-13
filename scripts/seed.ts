@@ -43,7 +43,7 @@ async function main() {
       limit: 1,
     })
     const doc = docs[0] ?? (await payload.create({ collection: 'categories', data }))
-    categoryIdBySlug[data.slug] = Number(doc.id)
+    categoryIdBySlug[data.slug] = doc.id
     console.log(docs[0] ? `Category exists: ${data.name}` : `Created category: ${data.name}`)
   }
 

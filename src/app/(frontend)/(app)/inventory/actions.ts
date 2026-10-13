@@ -76,9 +76,9 @@ export async function createProductAction(
 
   await logActivity(
     payload,
-    Number(user.id),
+    user.id,
     'create',
-    Number(product.id),
+    product.id,
     `Added "${title}" — cost ₱${costPrice}, ${formatMarkup(markupType, markupValue)} markup, starting stock ${stockQuantity}`,
   )
 
@@ -104,9 +104,9 @@ export async function adjustStockAction(productId: number, delta: number) {
 
   await logActivity(
     payload,
-    Number(user.id),
+    user.id,
     'stock',
-    Number(product.id),
+    product.id,
     `${delta > 0 ? '+' : ''}${delta} stock on "${product.title}" (${product.stockQuantity} → ${newQuantity})`,
   )
 
@@ -125,9 +125,9 @@ export async function toggleProductActiveAction(productId: number, isActive: boo
 
   await logActivity(
     payload,
-    Number(user.id),
+    user.id,
     'visibility',
-    Number(product.id),
+    product.id,
     `${isActive ? 'Showed' : 'Hid'} "${product.title}" ${isActive ? 'on' : 'from'} storefront and POS`,
   )
 
@@ -169,9 +169,9 @@ export async function updateProductPricingAction(
 
   await logActivity(
     payload,
-    Number(user.id),
+    user.id,
     'pricing',
-    Number(product.id),
+    product.id,
     `Updated pricing for "${product.title}" — cost ₱${product.costPrice} → ₱${costPrice}, markup ${formatMarkup(product.markupType, product.markupValue)} → ${formatMarkup(markupType, markupValue)}`,
   )
 
