@@ -27,7 +27,7 @@ function formatMarkup(markupType: 'percentage' | 'fixed', markupValue: number) {
 async function logActivity(
   payload: Payload,
   userId: number,
-  action: 'create' | 'pricing' | 'stock' | 'visibility',
+  action: 'create' | 'rename' | 'pricing' | 'stock' | 'visibility',
   productId: number,
   summary: string,
 ) {
@@ -83,8 +83,8 @@ export async function createProductAction(
   )
 
   revalidatePath('/inventory')
-  revalidatePath('/pos')
   revalidatePath('/')
+  revalidatePath('/shop')
   revalidatePath('/logs')
 
   return { error: null, success: true }
@@ -111,8 +111,8 @@ export async function adjustStockAction(productId: number, delta: number) {
   )
 
   revalidatePath('/inventory')
-  revalidatePath('/pos')
   revalidatePath('/')
+  revalidatePath('/shop')
   revalidatePath('/logs')
 }
 
@@ -132,30 +132,31 @@ export async function toggleProductActiveAction(productId: number, isActive: boo
   )
 
   revalidatePath('/inventory')
-  revalidatePath('/pos')
   revalidatePath('/')
+  revalidatePath('/shop')
   revalidatePath('/logs')
 }
 
-export interface UpdatePricingState {
+export interface UpdateProductState {
   error: string | null
   success: boolean
 }
 
-export async function updateProductPricingAction(
-  _prevState: UpdatePricingState,
+export async function updateProductAction(
+  _prevState: UpdateProductState,
   formData: FormData,
-): Promise<UpdatePricingState> {
+): Promise<UpdateProductState> {
   const user = await requireAdmin()
   const payload = await getPayloadClient()
 
   const productId = Number(formData.get('productId'))
+  const title = String(formData.get('title') ?? '').trim()
   const costPrice = Number(formData.get('costPrice'))
   const markupType = String(formData.get('markupType') ?? 'percentage') as 'percentage' | 'fixed'
   const markupValue = Number(formData.get('markupValue') ?? 0)
 
-  if (!productId || Number.isNaN(costPrice) || Number.isNaN(markupValue)) {
-    return { error: 'Please enter a valid cost price and markup.', success: false }
+  if (!productId || !title || Number.isNaN(costPrice) || Number.isNaN(markupValue)) {
+    return { error: 'Please enter a product name, a valid cost price, and markup.', success: false }
   }
 
   const product = await payload.findByID({ collection: 'products', id: productId })
@@ -164,20 +165,26 @@ export async function updateProductPricingAction(
     collection: 'products',
     id: productId,
     // sellingPrice is recomputed server-side from costPrice + markup (see Products.ts hook).
-    data: { costPrice, markupType, markupValue },
+    data: { title, costPrice, markupType, markupValue },
   })
 
-  await logActivity(
-    payload,
-    user.id,
-    'pricing',
-    product.id,
-    `Updated pricing for "${product.title}" — cost ₱${product.costPrice} → ₱${costPrice}, markup ${formatMarkup(product.markupType, product.markupValue)} → ${formatMarkup(markupType, markupValue)}`,
-  )
+  if (title !== product.title) {
+    await logActivity(payload, user.id, 'rename', product.id, `Renamed "${product.title}" to "${title}"`)
+  }
+
+  if (costPrice !== product.costPrice || markupType !== product.markupType || markupValue !== product.markupValue) {
+    await logActivity(
+      payload,
+      user.id,
+      'pricing',
+      product.id,
+      `Updated pricing for "${title}" — cost ₱${product.costPrice} → ₱${costPrice}, markup ${formatMarkup(product.markupType, product.markupValue)} → ${formatMarkup(markupType, markupValue)}`,
+    )
+  }
 
   revalidatePath('/inventory')
-  revalidatePath('/pos')
   revalidatePath('/')
+  revalidatePath('/shop')
   revalidatePath('/logs')
 
   return { error: null, success: true }

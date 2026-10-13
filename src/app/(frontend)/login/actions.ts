@@ -37,5 +37,5 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
     return { error: 'Invalid email or password.' }
   }
 
-  redirect('/pos')
+  redirect('/')
 }

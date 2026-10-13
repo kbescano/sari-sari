@@ -9,7 +9,7 @@ import { SettingsModal, type StoreSettingsValues } from './SettingsModal'
 import { BottomTabBar } from './BottomTabBar'
 
 const NAV_LINKS = [
-  { href: '/pos', label: 'POS', icon: ShoppingCart },
+  { href: '/', label: 'POS', icon: ShoppingCart },
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/sales', label: 'Sales Report', icon: BarChart3 },
 ] as const
@@ -34,7 +34,7 @@ export function Nav({
       <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2.5">
           <Link
-            href="/pos"
+            href="/"
             aria-label="Home"
             className="flex min-w-0 flex-1 items-center gap-2 rounded-xl py-1 pr-2 hover:bg-slate-100 sm:flex-none sm:pr-4"
           >

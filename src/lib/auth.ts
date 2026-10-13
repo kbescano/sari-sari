@@ -31,6 +31,6 @@ export async function requireAdmin() {
 // client-side catch to show an error on an initial page load.
 export async function requireAdminPage() {
   const user = await requireUser()
-  if (user.role !== 'owner') redirect('/pos')
+  if (user.role !== 'owner') redirect('/')
   return user
 }

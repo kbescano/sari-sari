@@ -17,7 +17,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-primary-50 to-slate-50 p-4">
       <div className="w-full max-w-sm">
         <Link
-          href="/"
+          href="/shop"
           className="mb-4 inline-flex h-touch-min items-center gap-2 rounded-xl px-2 text-base font-semibold text-slate-500 hover:bg-white/60 hover:text-slate-700"
         >
           <ArrowLeft size={18} />

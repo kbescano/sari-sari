@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { ShoppingCart, Package, BarChart3, History } from 'lucide-react'
 
 const TABS = [
-  { href: '/pos', label: 'POS', icon: ShoppingCart },
+  { href: '/', label: 'POS', icon: ShoppingCart },
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/sales', label: 'Sales', icon: BarChart3 },
 ] as const

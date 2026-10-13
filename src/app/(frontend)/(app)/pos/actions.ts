@@ -74,7 +74,8 @@ export async function createPosOrder(input: CreatePosOrderInput) {
     })
   }
 
-  revalidatePath('/pos')
+  revalidatePath('/')
+  revalidatePath('/shop')
   revalidatePath('/sales')
   revalidatePath('/inventory')
 
