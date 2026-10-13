@@ -10,7 +10,7 @@ import { createProductAction, type CreateProductState } from '@/app/(frontend)/(
 
 const initialState: CreateProductState = { error: null, success: false }
 
-export function AddProductForm({ categories }: { categories: { id: number; name: string }[] }) {
+export function AddProductForm({ categories }: {categories: { id: string | number; name: string }[] }) {
   const [isOpen, setIsOpen] = useState(false)
   const [state, formAction, isPending] = useActionState(createProductAction, initialState)
   const formRef = useRef<HTMLFormElement>(null)
