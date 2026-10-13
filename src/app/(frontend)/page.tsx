@@ -3,6 +3,10 @@ import { Store, LogIn } from 'lucide-react'
 import { getPayloadClient } from '@/lib/payload'
 import { Catalog } from '@/components/storefront/Catalog'
 
+// Stock and the catalog change constantly via POS sales — this page must never be
+// statically frozen at build time (it was previously, which shipped an empty snapshot).
+export const dynamic = 'force-dynamic'
+
 export default async function StorefrontPage() {
   const payload = await getPayloadClient()
 
