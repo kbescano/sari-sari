@@ -104,9 +104,9 @@ export async function adjustStockAction(productId: number, delta: number) {
 
   await logActivity(
     payload,
-    user.id,
+    Number(user.id),
     'stock',
-    productId,
+    Number(product.id),
     `${delta > 0 ? '+' : ''}${delta} stock on "${product.title}" (${product.stockQuantity} → ${newQuantity})`,
   )
 
@@ -125,9 +125,9 @@ export async function toggleProductActiveAction(productId: number, isActive: boo
 
   await logActivity(
     payload,
-    user.id,
+    Number(user.id),
     'visibility',
-    productId,
+    Number(product.id),
     `${isActive ? 'Showed' : 'Hid'} "${product.title}" ${isActive ? 'on' : 'from'} storefront and POS`,
   )
 
@@ -169,9 +169,9 @@ export async function updateProductPricingAction(
 
   await logActivity(
     payload,
-    user.id,
+    Number(user.id),
     'pricing',
-    productId,
+    Number(product.id),
     `Updated pricing for "${product.title}" — cost ₱${product.costPrice} → ₱${costPrice}, markup ${formatMarkup(product.markupType, product.markupValue)} → ${formatMarkup(markupType, markupValue)}`,
   )
 
