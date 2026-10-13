@@ -17,7 +17,9 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
-  serverURL: process.env.NEXT_PUBLIC_SERVER_URL,
+  // Server-only — used for CORS/CSRF origin checks and absolute URL generation
+  // (e.g. password reset emails), never read in browser code.
+  serverURL: process.env.SERVER_URL,
   admin: {
     user: Users.slug,
   },
