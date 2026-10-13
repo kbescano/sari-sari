@@ -311,7 +311,7 @@ export interface DebtLedger {
 export interface ActivityLog {
   id: number;
   user: number | User;
-  action: 'create' | 'pricing' | 'stock' | 'visibility';
+  action: 'create' | 'rename' | 'pricing' | 'stock' | 'visibility';
   product?: (number | null) | Product;
   /**
    * Human-readable description of the change.

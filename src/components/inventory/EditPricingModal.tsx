@@ -1,15 +1,13 @@
 'use client'
 
 import { useActionState, useEffect } from 'react'
-import { X, Tag } from 'lucide-react'
+import { X, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { Input, Label } from '@/components/ui/Input'
 import { MarkupPricingFields, type MarkupType } from './MarkupPricingFields'
-import {
-  updateProductPricingAction,
-  type UpdatePricingState,
-} from '@/app/(frontend)/(app)/inventory/actions'
+import { updateProductAction, type UpdateProductState } from '@/app/(frontend)/(app)/inventory/actions'
 
-const initialState: UpdatePricingState = { error: null, success: false }
+const initialState: UpdateProductState = { error: null, success: false }
 
 export function EditPricingModal({
   productId,
@@ -26,7 +24,7 @@ export function EditPricingModal({
   markupValue: number
   onClose: () => void
 }) {
-  const [state, formAction, isPending] = useActionState(updateProductPricingAction, initialState)
+  const [state, formAction, isPending] = useActionState(updateProductAction, initialState)
 
   useEffect(() => {
     if (state.success) onClose()
@@ -41,7 +39,7 @@ export function EditPricingModal({
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-xl font-extrabold text-slate-900">
-            <Tag size={22} className="text-primary-600" /> Edit Pricing
+            <Pencil size={22} className="text-primary-600" /> Edit Product
           </h2>
           <button
             type="button"
@@ -53,10 +51,14 @@ export function EditPricingModal({
           </button>
         </div>
 
-        <p className="mb-4 truncate text-base font-semibold text-slate-600">{title}</p>
-
         <form action={formAction} className="grid gap-4 sm:grid-cols-2">
           <input type="hidden" name="productId" value={productId} />
+
+          <div className="sm:col-span-2">
+            <Label htmlFor="editTitle">Product Name</Label>
+            <Input id="editTitle" name="title" defaultValue={title} required />
+          </div>
+
           <MarkupPricingFields defaultCostPrice={costPrice} defaultMarkupType={markupType} defaultMarkupValue={markupValue} />
 
           {state.error && (
@@ -66,7 +68,7 @@ export function EditPricingModal({
           )}
 
           <Button type="submit" size="xl" className="sm:col-span-2" disabled={isPending}>
-            {isPending ? 'Saving...' : 'Save Pricing'}
+            {isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </form>
       </div>

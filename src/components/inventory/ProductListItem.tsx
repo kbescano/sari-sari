@@ -63,7 +63,7 @@ export function ProductListItem({
             <button
               type="button"
               onClick={() => setIsEditingPrice(true)}
-              aria-label="Edit cost and markup"
+              aria-label="Edit product name, cost, and markup"
               className="flex h-touch-min w-touch-min shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-primary-50 hover:text-primary-600"
             >
               <Tag size={20} />

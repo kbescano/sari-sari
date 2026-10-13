@@ -23,6 +23,7 @@ export const ActivityLogs: CollectionConfig = {
       required: true,
       options: [
         { label: 'Added Product', value: 'create' },
+        { label: 'Renamed Product', value: 'rename' },
         { label: 'Updated Pricing', value: 'pricing' },
         { label: 'Adjusted Stock', value: 'stock' },
         { label: 'Toggled Visibility', value: 'visibility' },

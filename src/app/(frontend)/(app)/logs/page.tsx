@@ -1,10 +1,11 @@
-import { History, PackagePlus, Tag, Boxes, Eye } from 'lucide-react'
+import { History, PackagePlus, Pencil, Tag, Boxes, Eye } from 'lucide-react'
 import { requireAdminPage } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
 import { Card } from '@/components/ui/Card'
 
 const ACTION_ICONS = {
   create: PackagePlus,
+  rename: Pencil,
   pricing: Tag,
   stock: Boxes,
   visibility: Eye,
