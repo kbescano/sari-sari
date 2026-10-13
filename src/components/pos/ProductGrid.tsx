@@ -13,7 +13,13 @@ export interface PosProduct {
   categoryName: string
 }
 
-export function ProductGrid({ products }: { products: PosProduct[] }) {
+export function ProductGrid({
+  products,
+  onAddToCart,
+}: {
+  products: PosProduct[]
+  onAddToCart?: (rect: DOMRect) => void
+}) {
   const addLine = usePosCart((state) => state.addLine)
 
   if (products.length === 0) {
@@ -40,14 +46,15 @@ export function ProductGrid({ products }: { products: PosProduct[] }) {
                   key={product.id}
                   type="button"
                   disabled={isOutOfStock}
-                  onClick={() =>
+                  onClick={(event) => {
                     addLine({
                       productId: product.id,
                       title: product.title,
                       unitPrice: product.sellingPrice,
                       unitType: product.unitType,
                     })
-                  }
+                    onAddToCart?.(event.currentTarget.getBoundingClientRect())
+                  }}
                   className="flex min-h-touch-lg min-w-0 flex-col items-start justify-center gap-0.5 rounded-2xl border border-slate-200 bg-white p-3 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0 disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
                 >
                   <span className="w-full break-words text-lg font-bold leading-tight text-slate-900">{product.title}</span>

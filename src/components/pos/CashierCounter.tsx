@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Receipt, Minus, Plus, Trash2, CheckCircle2, ShoppingBasket, Wallet } from 'lucide-react'
 import { usePosCart, selectCartTotal } from '@/lib/store/usePosCart'
 import { useIsUtangEnabled } from '@/lib/store/useStoreSettings'
@@ -15,8 +15,48 @@ import { CategoryChips } from '@/components/storefront/CategoryChips'
 import { SearchBar } from '@/components/storefront/SearchBar'
 import { createPosOrder } from '@/app/(frontend)/(app)/pos/actions'
 
+interface FlyingDotData {
+  id: number
+  startX: number
+  startY: number
+  endX: number
+  endY: number
+}
+
+function FlyingDot({ startX, startY, endX, endY, onDone }: Omit<FlyingDotData, 'id'> & { onDone: () => void }) {
+  const [launched, setLaunched] = useState(false)
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setLaunched(true))
+    const timer = setTimeout(onDone, 500)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(timer)
+    }
+  }, [onDone])
+
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed z-50 flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-white shadow-card-hover transition-all duration-500 ease-in"
+      style={{
+        left: startX - 16,
+        top: startY - 16,
+        transform: launched ? `translate(${endX - startX}px, ${endY - startY}px) scale(0.3)` : 'translate(0, 0) scale(1)',
+        opacity: launched ? 0 : 1,
+      }}
+    >
+      <ShoppingBasket size={16} />
+    </div>
+  )
+}
+
 export function CashierCounter({ products }: { products: PosProduct[] }) {
   const [mobileView, setMobileView] = useState<'products' | 'bill'>('products')
+  const billToggleRef = useRef<HTMLButtonElement>(null)
+  const billHeaderRef = useRef<HTMLHeadingElement>(null)
+  const [flyingDots, setFlyingDots] = useState<FlyingDotData[]>([])
+  const nextFlyingDotId = useRef(0)
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const categories = Array.from(new Set(products.map((product) => product.categoryName))).map((name) => ({
@@ -30,6 +70,7 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
   })
 
   const lines = usePosCart((state) => state.lines)
+  const totalQuantity = lines.reduce((sum, line) => sum + line.quantity, 0)
   const total = usePosCart(selectCartTotal)
   const paymentMethod = usePosCart((state) => state.paymentMethod)
   const cashTendered = usePosCart((state) => state.cashTendered)
@@ -49,6 +90,28 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
 
   const canCompleteSale =
     lines.length > 0 && !isSubmitting && !(paymentMethod === 'Cash' && hasCashShortfall) && !isUtangDetailsMissing
+
+  function handleAddToCart(rect: DOMRect) {
+    const targetEl =
+      billToggleRef.current && billToggleRef.current.offsetParent !== null ? billToggleRef.current : billHeaderRef.current
+    if (!targetEl) return
+    const targetRect = targetEl.getBoundingClientRect()
+    const id = nextFlyingDotId.current++
+    setFlyingDots((dots) => [
+      ...dots,
+      {
+        id,
+        startX: rect.left + rect.width / 2,
+        startY: rect.top + rect.height / 2,
+        endX: targetRect.left + targetRect.width / 2,
+        endY: targetRect.top + targetRect.height / 2,
+      },
+    ])
+  }
+
+  function removeFlyingDot(id: number) {
+    setFlyingDots((dots) => dots.filter((dot) => dot.id !== id))
+  }
 
   async function handleCompleteSale() {
     setIsSubmitting(true)
@@ -87,6 +150,7 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
           Products
         </button>
         <button
+          ref={billToggleRef}
           type="button"
           onClick={() => setMobileView('bill')}
           className={`flex h-touch-min flex-1 items-center justify-center gap-2 rounded-lg text-base font-bold transition-colors ${
@@ -95,9 +159,9 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
         >
           <Wallet size={18} />
           Bill
-          {lines.length > 0 && (
+          {totalQuantity > 0 && (
             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-600 px-1 text-xs font-extrabold text-white">
-              {lines.length}
+              {totalQuantity}
             </span>
           )}
         </button>
@@ -111,7 +175,7 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
         >
           <SearchBar value={query} onChange={setQuery} />
           <CategoryChips categories={categories} activeSlug={activeCategory} onSelect={setActiveCategory} />
-          <ProductGrid products={filteredProducts} />
+          <ProductGrid products={filteredProducts} onAddToCart={handleAddToCart} />
         </section>
 
         <section
@@ -119,8 +183,13 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
           className={`space-y-4 ${mobileView === 'bill' ? 'block' : 'hidden'} lg:block`}
         >
         <Card>
-          <h2 className="mb-3 flex items-center gap-2 text-xl font-extrabold text-slate-900">
+          <h2 ref={billHeaderRef} className="mb-3 flex items-center gap-2 text-xl font-extrabold text-slate-900">
             <Receipt size={22} className="text-primary-600" /> Bill
+            {totalQuantity > 0 && (
+              <span className="ml-auto flex items-center justify-center rounded-full bg-primary-100 px-2.5 py-0.5 text-sm font-bold text-primary-700">
+                {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
+              </span>
+            )}
           </h2>
 
           {lines.length === 0 ? (
@@ -210,6 +279,10 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
         </Button>
       </section>
       </div>
+
+      {flyingDots.map((dot) => (
+        <FlyingDot key={dot.id} {...dot} onDone={() => removeFlyingDot(dot.id)} />
+      ))}
     </div>
   )
 }
