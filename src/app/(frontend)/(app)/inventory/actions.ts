@@ -78,7 +78,7 @@ export async function createProductAction(
     payload,
     Number(user.id),
     'create',
-    product.id,
+    Number(product.id),
     `Added "${title}" — cost ₱${costPrice}, ${formatMarkup(markupType, markupValue)} markup, starting stock ${stockQuantity}`,
   )
 
