@@ -76,7 +76,7 @@ export async function createProductAction(
 
   await logActivity(
     payload,
-    user.id,
+    Number(user.id),
     'create',
     product.id,
     `Added "${title}" — cost ₱${costPrice}, ${formatMarkup(markupType, markupValue)} markup, starting stock ${stockQuantity}`,
