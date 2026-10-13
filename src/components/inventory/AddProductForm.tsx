@@ -18,6 +18,7 @@ export function AddProductForm({ categories }: { categories: { id: number; name:
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset()
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(false)
     }
   }, [state.success])
