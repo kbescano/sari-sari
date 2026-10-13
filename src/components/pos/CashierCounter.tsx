@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Receipt, Minus, Plus, Trash2, CheckCircle2 } from 'lucide-react'
+import { Receipt, Minus, Plus, Trash2, CheckCircle2, ShoppingBasket, Wallet } from 'lucide-react'
 import { usePosCart, selectCartTotal } from '@/lib/store/usePosCart'
 import { useIsUtangEnabled } from '@/lib/store/useStoreSettings'
 import { Button } from '@/components/ui/Button'
@@ -16,6 +16,7 @@ import { SearchBar } from '@/components/storefront/SearchBar'
 import { createPosOrder } from '@/app/(frontend)/(app)/pos/actions'
 
 export function CashierCounter({ products }: { products: PosProduct[] }) {
+  const [mobileView, setMobileView] = useState<'products' | 'bill'>('products')
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const categories = Array.from(new Set(products.map((product) => product.categoryName))).map((name) => ({
@@ -63,6 +64,7 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
       clearSale()
       setUtangCustomerName('')
       setUtangCustomerPhone('')
+      setMobileView('products')
     } catch {
       setError('Could not complete the sale. Please try again.')
     } finally {
@@ -71,14 +73,51 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-      <section aria-label="Products" className="space-y-3">
-        <SearchBar value={query} onChange={setQuery} />
-        <CategoryChips categories={categories} activeSlug={activeCategory} onSelect={setActiveCategory} />
-        <ProductGrid products={filteredProducts} />
-      </section>
+    <div>
+      <div className="sticky top-14 z-20 -mx-4 mb-3 bg-slate-50 px-4 py-2 lg:hidden">
+        <div className="flex gap-1 rounded-xl bg-slate-100 p-1 shadow-card">
+        <button
+          type="button"
+          onClick={() => setMobileView('products')}
+          className={`flex h-touch-min flex-1 items-center justify-center gap-2 rounded-lg text-base font-bold transition-colors ${
+            mobileView === 'products' ? 'bg-white text-primary-700 shadow-card' : 'text-slate-600'
+          }`}
+        >
+          <ShoppingBasket size={18} />
+          Products
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileView('bill')}
+          className={`flex h-touch-min flex-1 items-center justify-center gap-2 rounded-lg text-base font-bold transition-colors ${
+            mobileView === 'bill' ? 'bg-white text-primary-700 shadow-card' : 'text-slate-600'
+          }`}
+        >
+          <Wallet size={18} />
+          Bill
+          {lines.length > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-600 px-1 text-xs font-extrabold text-white">
+              {lines.length}
+            </span>
+          )}
+        </button>
+        </div>
+      </div>
 
-      <section aria-label="Current Sale" className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+        <section
+          aria-label="Products"
+          className={`space-y-3 ${mobileView === 'products' ? 'block' : 'hidden'} lg:block`}
+        >
+          <SearchBar value={query} onChange={setQuery} />
+          <CategoryChips categories={categories} activeSlug={activeCategory} onSelect={setActiveCategory} />
+          <ProductGrid products={filteredProducts} />
+        </section>
+
+        <section
+          aria-label="Current Sale"
+          className={`space-y-4 ${mobileView === 'bill' ? 'block' : 'hidden'} lg:block`}
+        >
         <Card>
           <h2 className="mb-3 flex items-center gap-2 text-xl font-extrabold text-slate-900">
             <Receipt size={22} className="text-primary-600" /> Bill
@@ -170,6 +209,7 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
           {isSubmitting ? 'Processing...' : 'Complete Sale'}
         </Button>
       </section>
+      </div>
     </div>
   )
 }
