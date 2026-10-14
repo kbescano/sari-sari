@@ -1,4 +1,5 @@
 import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
+import { loggedInAndNotDemo } from './access'
 
 // Selling price is always derived from costPrice + markup — never entered directly.
 // This keeps every sale's recorded unitPrice traceable back to an actual cost, which is
@@ -25,9 +26,9 @@ export const Products: CollectionConfig = {
   },
   access: {
     read: () => true, // storefront catalog is public, no login required to browse
-    create: ({ req }) => Boolean(req.user),
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    create: loggedInAndNotDemo,
+    update: loggedInAndNotDemo,
+    delete: loggedInAndNotDemo,
   },
   hooks: {
     beforeValidate: [computeSellingPrice],
@@ -47,6 +48,18 @@ export const Products: CollectionConfig = {
       type: 'relationship',
       relationTo: 'categories',
       required: true,
+    },
+    {
+      name: 'itemName',
+      type: 'text',
+      required: true,
+      admin: { description: 'The generic item this product is a brand of, e.g. "Soft Drink" for "Soft Drink (Coca-Cola)".' },
+    },
+    {
+      name: 'brand',
+      type: 'text',
+      required: true,
+      admin: { description: 'Brand/manufacturer for this specific product, e.g. "Coca-Cola".' },
     },
     {
       name: 'costPrice',

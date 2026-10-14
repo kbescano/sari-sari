@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { loggedInAndNotDemo } from './access'
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
@@ -9,9 +10,11 @@ export const Orders: CollectionConfig = {
   },
   access: {
     read: ({ req }) => Boolean(req.user), // owner/staff only — customers don't log in to view other orders
-    create: () => true, // storefront + POS both create orders without auth
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    // Was public for a storefront checkout flow that was removed and never actually shipped
+    // (POS always creates orders via the local API, which bypasses access control anyway).
+    create: loggedInAndNotDemo,
+    update: loggedInAndNotDemo,
+    delete: loggedInAndNotDemo,
   },
   fields: [
     {

@@ -54,6 +54,11 @@ export function AddProductForm({ categories }: { categories: { id: number; name:
           <Input id="title" name="title" required placeholder="e.g. Instant Noodles" />
         </div>
 
+        <div className="sm:col-span-2">
+          <Label htmlFor="brand">Brand</Label>
+          <Input id="brand" name="brand" required placeholder="e.g. Lucky Me" />
+        </div>
+
         <div>
           <Label htmlFor="category">Category</Label>
           <Select id="category" name="category" required defaultValue="">

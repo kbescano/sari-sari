@@ -1,8 +1,9 @@
-import { BarChart3, TrendingUp, ShoppingBag, Wallet } from 'lucide-react'
+import { BarChart3, TrendingUp, ShoppingBag, Wallet, Layers, Tag } from 'lucide-react'
 import { getPayloadClient } from '@/lib/payload'
 import { getDateRange, PERIOD_LABELS, type SalesPeriod } from '@/lib/dateRange'
 import { Card } from '@/components/ui/Card'
 import { PeriodFilter } from '@/components/sales/PeriodFilter'
+import { BestSellerCard, type BestSellerRow } from '@/components/sales/BestSellerCard'
 import { formatPeso } from '@/lib/currency'
 
 const VALID_PERIODS: SalesPeriod[] = ['day', 'week', 'month', 'year', 'all', 'range']
@@ -32,6 +33,7 @@ export default async function SalesReportPage({
       ],
     },
     limit: 1000,
+    depth: 2, // resolve items[].product and, through it, product.category for the best-seller breakdowns below
   })
 
   const totalSales = orders.reduce((sum, order) => sum + order.totalAmount, 0)
@@ -45,6 +47,56 @@ export default async function SalesReportPage({
     )
     return sum + orderProfit
   }, 0)
+
+  // Best sellers by category and by item×brand, computed from the same period-filtered orders
+  // above — product/category come pre-resolved via depth:2 rather than a separate query.
+  const categoryTotals = new Map<string, { label: string; unitsSold: number; revenue: number }>()
+  const itemBrandTotals = new Map<string, { label: string; sublabel: string; unitsSold: number; revenue: number }>()
+
+  for (const order of orders) {
+    for (const item of order.items ?? []) {
+      if (typeof item.product !== 'object' || item.product === null) continue
+      const product = item.product
+      const revenue = item.unitPrice * item.quantity
+
+      const category = typeof product.category === 'object' ? product.category : null
+      const categoryKey = category ? String(category.id) : 'uncategorized'
+      const categoryLabel = category?.name ?? 'Uncategorized'
+      const categoryEntry = categoryTotals.get(categoryKey) ?? { label: categoryLabel, unitsSold: 0, revenue: 0 }
+      categoryEntry.unitsSold += item.quantity
+      categoryEntry.revenue += revenue
+      categoryTotals.set(categoryKey, categoryEntry)
+
+      const itemName = product.itemName || product.title
+      const brand = product.brand || 'Unbranded'
+      const itemBrandKey = `${itemName}__${brand}`
+      const itemBrandEntry = itemBrandTotals.get(itemBrandKey) ?? {
+        label: itemName,
+        sublabel: brand,
+        unitsSold: 0,
+        revenue: 0,
+      }
+      itemBrandEntry.unitsSold += item.quantity
+      itemBrandEntry.revenue += revenue
+      itemBrandTotals.set(itemBrandKey, itemBrandEntry)
+    }
+  }
+
+  const categoryBestSellers: BestSellerRow[] = Array.from(categoryTotals.entries())
+    .map(([key, value]) => ({ key, label: value.label, unitsSold: value.unitsSold, revenue: value.revenue }))
+    .sort((a, b) => b.unitsSold - a.unitsSold)
+    .slice(0, 10)
+
+  const itemBrandBestSellers: BestSellerRow[] = Array.from(itemBrandTotals.entries())
+    .map(([key, value]) => ({
+      key,
+      label: value.label,
+      sublabel: value.sublabel,
+      unitsSold: value.unitsSold,
+      revenue: value.revenue,
+    }))
+    .sort((a, b) => b.unitsSold - a.unitsSold)
+    .slice(0, 10)
 
   let uncollectedDebt = 0
   if (settings.isUtangEnabled) {
@@ -70,32 +122,44 @@ export default async function SalesReportPage({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <p className="flex items-center gap-2 text-base font-bold text-slate-500">
-            <TrendingUp size={18} /> Total Sales
-          </p>
-          <p className="mt-1 text-3xl font-extrabold tabular-nums text-success-700">{formatPeso(totalSales)}</p>
+          <div className="flex items-center gap-2 text-base font-bold text-slate-500">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-success-50 text-success-700">
+              <TrendingUp size={18} />
+            </span>
+            Total Sales
+          </div>
+          <p className="mt-3 text-4xl font-extrabold tabular-nums text-success-700">{formatPeso(totalSales)}</p>
         </Card>
 
         <Card>
-          <p className="flex items-center gap-2 text-base font-bold text-slate-500">
-            <ShoppingBag size={18} /> Number of Sales
-          </p>
-          <p className="mt-1 text-3xl font-extrabold tabular-nums text-slate-900">{orders.length}</p>
+          <div className="flex items-center gap-2 text-base font-bold text-slate-500">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+              <ShoppingBag size={18} />
+            </span>
+            Number of Sales
+          </div>
+          <p className="mt-3 text-4xl font-extrabold tabular-nums text-slate-900">{orders.length}</p>
         </Card>
 
         <Card>
-          <p className="flex items-center gap-2 text-base font-bold text-slate-500">
-            <TrendingUp size={18} /> Net Profit
-          </p>
-          <p className="mt-1 text-3xl font-extrabold tabular-nums text-primary-700">{formatPeso(netProfit)}</p>
+          <div className="flex items-center gap-2 text-base font-bold text-slate-500">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+              <TrendingUp size={18} />
+            </span>
+            Net Profit
+          </div>
+          <p className="mt-3 text-4xl font-extrabold tabular-nums text-primary-700">{formatPeso(netProfit)}</p>
         </Card>
 
         {settings.isUtangEnabled && (
           <Card className="border-danger-200 bg-danger-50/40">
-            <p className="flex items-center gap-2 text-base font-bold text-danger-700">
-              <Wallet size={18} /> Uncollected Credit (Utang)
-            </p>
-            <p className="mt-1 text-3xl font-extrabold tabular-nums text-danger-600">{formatPeso(uncollectedDebt)}</p>
+            <div className="flex items-center gap-2 text-base font-bold text-danger-700">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-danger-700">
+                <Wallet size={18} />
+              </span>
+              Uncollected Credit (Utang)
+            </div>
+            <p className="mt-3 text-4xl font-extrabold tabular-nums text-danger-600">{formatPeso(uncollectedDebt)}</p>
           </Card>
         )}
       </div>
@@ -105,7 +169,12 @@ export default async function SalesReportPage({
           <h2 className="text-lg font-extrabold text-slate-900">Transactions</h2>
         </div>
         {orders.length === 0 ? (
-          <p className="py-8 text-center text-lg text-slate-500">No sales in this period.</p>
+          <div className="flex flex-col items-center gap-2 py-12 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+              <ShoppingBag size={22} />
+            </span>
+            <p className="text-lg font-semibold text-slate-500">No sales in this period.</p>
+          </div>
         ) : (
           <ul className="divide-y divide-slate-100">
             {orders.map((order) => (
@@ -122,6 +191,21 @@ export default async function SalesReportPage({
           </ul>
         )}
       </Card>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <BestSellerCard
+          title="Best Seller by Category"
+          icon={Layers}
+          rows={categoryBestSellers}
+          emptyLabel="No sales in this period."
+        />
+        <BestSellerCard
+          title="Best Seller by Item × Brand"
+          icon={Tag}
+          rows={itemBrandBestSellers}
+          emptyLabel="No sales in this period."
+        />
+      </div>
     </main>
   )
 }

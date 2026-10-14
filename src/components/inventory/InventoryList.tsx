@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { PackageX } from 'lucide-react'
 import { SearchBar } from '@/components/storefront/SearchBar'
 import { CategoryChips, type Category } from '@/components/storefront/CategoryChips'
 import { ProductListItem, type InventoryProduct } from './ProductListItem'
@@ -43,7 +44,12 @@ export function InventoryList({
       <CategoryChips categories={categories} activeSlug={activeCategory} onSelect={setActiveCategory} />
 
       {filteredProducts.length === 0 ? (
-        <p className="py-8 text-center text-lg text-slate-500">No products found.</p>
+        <div className="flex flex-col items-center gap-2 py-12 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+            <PackageX size={22} />
+          </span>
+          <p className="text-lg font-semibold text-slate-500">No products found.</p>
+        </div>
       ) : (
         <div className="space-y-6">
           {Array.from(groups.entries()).map(([categoryName, categoryProducts]) => (

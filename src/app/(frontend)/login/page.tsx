@@ -1,12 +1,12 @@
 'use client'
 
 import { useActionState } from 'react'
-import Link from 'next/link'
-import { Store, Mail, Lock, LogIn, ArrowLeft } from 'lucide-react'
+import { Store, Mail, Lock, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input, Label } from '@/components/ui/Input'
 import { loginAction, type LoginState } from './actions'
+import { DemoLoginSection } from '@/components/demo/DemoLoginSection'
 
 const initialState: LoginState = { error: null }
 
@@ -16,14 +16,6 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-primary-50 to-slate-50 p-4">
       <div className="w-full max-w-sm">
-        <Link
-          href="/shop"
-          className="mb-4 inline-flex h-touch-min items-center gap-2 rounded-xl px-2 text-base font-semibold text-slate-500 hover:bg-white/60 hover:text-slate-700"
-        >
-          <ArrowLeft size={18} />
-          Back to Store
-        </Link>
-
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-600 text-white shadow-card">
             <Store size={28} />
@@ -67,6 +59,8 @@ export default function LoginPage() {
             </Button>
           </form>
         </Card>
+
+        <DemoLoginSection />
       </div>
     </main>
   )

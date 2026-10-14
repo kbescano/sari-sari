@@ -32,6 +32,8 @@ export default async function PosPage() {
         products={sortedProducts.map((product) => ({
           id: String(product.id),
           title: product.title,
+          itemName: product.itemName,
+          brand: product.brand,
           sellingPrice: product.sellingPrice,
           unitType: product.unitType,
           stockQuantity: product.stockQuantity,

@@ -138,6 +138,10 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   role: 'owner' | 'staff';
+  /**
+   * Sandboxed account used by the public "Try the Demo" login. Every mutating server action refuses to run for isDemo accounts — see assertNotDemo() in src/lib/auth.ts.
+   */
+  isDemo?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -221,6 +225,14 @@ export interface Product {
    */
   barcode?: string | null;
   category: number | Category;
+  /**
+   * The generic item this product is a brand of, e.g. "Soft Drink" for "Soft Drink (Coca-Cola)".
+   */
+  itemName: string;
+  /**
+   * Brand/manufacturer for this specific product, e.g. "Coca-Cola".
+   */
+  brand: string;
   /**
    * What the owner paid per unit — the basis for markup and net profit.
    */
@@ -420,6 +432,7 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   role?: T;
+  isDemo?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -490,6 +503,8 @@ export interface ProductsSelect<T extends boolean = true> {
   slug?: T;
   barcode?: T;
   category?: T;
+  itemName?: T;
+  brand?: T;
   costPrice?: T;
   markupType?: T;
   markupValue?: T;

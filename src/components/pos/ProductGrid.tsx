@@ -7,6 +7,8 @@ import { formatPeso } from '@/lib/currency'
 export interface PosProduct {
   id: string
   title: string
+  itemName: string
+  brand: string
   sellingPrice: number
   unitType: 'piece' | 'pack' | 'sachet'
   stockQuantity: number
@@ -23,7 +25,14 @@ export function ProductGrid({
   const addLine = usePosCart((state) => state.addLine)
 
   if (products.length === 0) {
-    return <p className="py-12 text-center text-lg text-slate-500">No products found.</p>
+    return (
+      <div className="flex flex-col items-center gap-2 py-12 text-center">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+          <PackageX size={22} />
+        </span>
+        <p className="text-lg font-semibold text-slate-500">No products found.</p>
+      </div>
+    )
   }
 
   const groups = new Map<string, PosProduct[]>()
@@ -38,7 +47,7 @@ export function ProductGrid({
       {Array.from(groups.entries()).map(([categoryName, categoryProducts]) => (
         <section key={categoryName}>
           <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-400">{categoryName}</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             {categoryProducts.map((product) => {
               const isOutOfStock = product.stockQuantity <= 0
               return (
@@ -55,14 +64,19 @@ export function ProductGrid({
                     })
                     onAddToCart?.(event.currentTarget.getBoundingClientRect())
                   }}
-                  className="flex min-h-touch-lg min-w-0 flex-col items-start justify-center gap-0.5 rounded-2xl border border-slate-200 bg-white p-3 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0 disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
+                  className="flex min-h-touch-lg min-w-0 flex-col items-start justify-center gap-2 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0 disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
                 >
-                  <span className="w-full break-words text-lg font-bold leading-tight text-slate-900">{product.title}</span>
+                  {product.brand && (
+                    <span className="inline-block rounded-full bg-primary-50 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-primary-700">
+                      {product.brand}
+                    </span>
+                  )}
+                  <span className="w-full break-words text-lg font-bold leading-snug text-slate-900">{product.itemName}</span>
                   <span className="text-base font-semibold text-primary-700">
                     {formatPeso(product.sellingPrice)} / {product.unitType}
                   </span>
                   {isOutOfStock && (
-                    <span className="mt-0.5 flex items-center gap-1 text-sm font-bold text-danger-600">
+                    <span className="flex items-center gap-1 text-sm font-bold text-danger-600">
                       <PackageX size={14} /> Out of stock
                     </span>
                   )}

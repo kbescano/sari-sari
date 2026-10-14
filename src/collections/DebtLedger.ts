@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { loggedInAndNotDemo } from './access'
 
 // Only ever read/written when storeSettings.isUtangEnabled is true — the collection
 // itself stays registered either way, but admin UI nav/links should hide it when disabled.
@@ -11,9 +12,9 @@ export const DebtLedger: CollectionConfig = {
   },
   access: {
     read: ({ req }) => Boolean(req.user),
-    create: ({ req }) => Boolean(req.user),
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    create: loggedInAndNotDemo,
+    update: loggedInAndNotDemo,
+    delete: loggedInAndNotDemo,
   },
   fields: [
     { name: 'customerName', type: 'text', required: true },

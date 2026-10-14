@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { getPayloadClient } from '@/lib/payload'
-import { requireUser } from '@/lib/auth'
+import { assertNotDemo, requireUser } from '@/lib/auth'
 import type { PaymentMethod } from '@/lib/store/usePosCart'
 
 interface CreatePosOrderInput {
@@ -14,7 +14,10 @@ interface CreatePosOrderInput {
 }
 
 export async function createPosOrder(input: CreatePosOrderInput) {
-  await requireUser()
+  // The POS UI intercepts demo accounts client-side and simulates a sale without calling
+  // this action at all — this is the defense-in-depth backstop in case that's ever bypassed.
+  const user = await requireUser()
+  assertNotDemo(user)
   const payload = await getPayloadClient()
 
   const settings = await payload.findGlobal({ slug: 'store-settings' })
@@ -75,7 +78,6 @@ export async function createPosOrder(input: CreatePosOrderInput) {
   }
 
   revalidatePath('/')
-  revalidatePath('/shop')
   revalidatePath('/sales')
   revalidatePath('/inventory')
 

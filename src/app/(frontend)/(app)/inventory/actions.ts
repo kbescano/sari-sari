@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { getPayloadClient } from '@/lib/payload'
-import { requireAdmin, requireUser } from '@/lib/auth'
+import { assertNotDemo, DEMO_BLOCKED_MESSAGE, requireAdmin, requireUser } from '@/lib/auth'
 import type { Payload } from 'payload'
 
 export interface CreateProductState {
@@ -43,9 +43,11 @@ export async function createProductAction(
 ): Promise<CreateProductState> {
   // Adding new products is open to staff, not just the owner — still fully logged below.
   const user = await requireUser()
+  if (user.isDemo) return { error: DEMO_BLOCKED_MESSAGE, success: false }
   const payload = await getPayloadClient()
 
   const title = String(formData.get('title') ?? '').trim()
+  const brand = String(formData.get('brand') ?? '').trim()
   const categoryId = Number(formData.get('category'))
   const costPrice = Number(formData.get('costPrice'))
   const markupType = String(formData.get('markupType') ?? 'percentage') as 'percentage' | 'fixed'
@@ -53,14 +55,16 @@ export async function createProductAction(
   const unitType = String(formData.get('unitType') ?? 'piece') as 'piece' | 'pack' | 'sachet'
   const stockQuantity = Number(formData.get('stockQuantity') ?? 0)
 
-  if (!title || !categoryId || Number.isNaN(costPrice)) {
-    return { error: 'Please fill in the product name, category, and cost price.', success: false }
+  if (!title || !brand || !categoryId || Number.isNaN(costPrice)) {
+    return { error: 'Please fill in the product name, brand, category, and cost price.', success: false }
   }
 
   const product = await payload.create({
     collection: 'products',
     data: {
       title,
+      itemName: title,
+      brand,
       slug: slugify(title),
       category: categoryId,
       costPrice,
@@ -84,7 +88,6 @@ export async function createProductAction(
 
   revalidatePath('/inventory')
   revalidatePath('/')
-  revalidatePath('/shop')
   revalidatePath('/logs')
 
   return { error: null, success: true }
@@ -92,6 +95,7 @@ export async function createProductAction(
 
 export async function adjustStockAction(productId: number, delta: number) {
   const user = await requireAdmin()
+  assertNotDemo(user)
   const payload = await getPayloadClient()
 
   const product = await payload.findByID({ collection: 'products', id: productId })
@@ -112,12 +116,12 @@ export async function adjustStockAction(productId: number, delta: number) {
 
   revalidatePath('/inventory')
   revalidatePath('/')
-  revalidatePath('/shop')
   revalidatePath('/logs')
 }
 
 export async function toggleProductActiveAction(productId: number, isActive: boolean) {
   const user = await requireAdmin()
+  assertNotDemo(user)
   const payload = await getPayloadClient()
 
   const product = await payload.findByID({ collection: 'products', id: productId })
@@ -133,7 +137,6 @@ export async function toggleProductActiveAction(productId: number, isActive: boo
 
   revalidatePath('/inventory')
   revalidatePath('/')
-  revalidatePath('/shop')
   revalidatePath('/logs')
 }
 
@@ -147,6 +150,7 @@ export async function updateProductAction(
   formData: FormData,
 ): Promise<UpdateProductState> {
   const user = await requireAdmin()
+  if (user.isDemo) return { error: DEMO_BLOCKED_MESSAGE, success: false }
   const payload = await getPayloadClient()
 
   const productId = Number(formData.get('productId'))
@@ -184,7 +188,6 @@ export async function updateProductAction(
 
   revalidatePath('/inventory')
   revalidatePath('/')
-  revalidatePath('/shop')
   revalidatePath('/logs')
 
   return { error: null, success: true }

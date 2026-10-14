@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { loggedInAndNotDemo } from './access'
 
 // Single-doc "global" — one row for the whole store, not a collection of many.
 export const StoreSettings: GlobalConfig = {
@@ -6,7 +7,7 @@ export const StoreSettings: GlobalConfig = {
   label: 'Store Settings',
   access: {
     read: () => true, // storefront + POS both need this to render feature flags
-    update: ({ req }) => Boolean(req.user), // only logged-in owner/staff can change it
+    update: loggedInAndNotDemo, // only logged-in owner/staff can change it
   },
   fields: [
     {

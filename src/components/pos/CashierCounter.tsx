@@ -14,6 +14,7 @@ import { SukliCalculator } from './SukliCalculator'
 import { CategoryChips } from '@/components/storefront/CategoryChips'
 import { SearchBar } from '@/components/storefront/SearchBar'
 import { createPosOrder } from '@/app/(frontend)/(app)/pos/actions'
+import { useDemoMode } from '@/lib/store/useDemoMode'
 
 interface FlyingDotData {
   id: number
@@ -78,11 +79,13 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
   const removeLine = usePosCart((state) => state.removeLine)
   const clearSale = usePosCart((state) => state.clearSale)
   const isUtangEnabled = useIsUtangEnabled()
+  const isDemo = useDemoMode((state) => state.isDemo)
 
   const [utangCustomerName, setUtangCustomerName] = useState('')
   const [utangCustomerPhone, setUtangCustomerPhone] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [demoSuccess, setDemoSuccess] = useState(false)
 
   const isUtangSale = isUtangEnabled && paymentMethod === 'Credit/Utang'
   const hasCashShortfall = paymentMethod === 'Cash' && (cashTendered ?? 0) < total
@@ -116,6 +119,22 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
   async function handleCompleteSale() {
     setIsSubmitting(true)
     setError(null)
+
+    // Demo accounts never reach the real server action — the sale is purely simulated
+    // client-side, so nothing is ever written to real store data (see assertNotDemo() in
+    // src/lib/auth.ts for the server-side backstop if this were ever bypassed).
+    if (isDemo) {
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      clearSale()
+      setUtangCustomerName('')
+      setUtangCustomerPhone('')
+      setMobileView('products')
+      setIsSubmitting(false)
+      setDemoSuccess(true)
+      setTimeout(() => setDemoSuccess(false), 3000)
+      return
+    }
+
     try {
       await createPosOrder({
         items: lines.map((line) => ({ productId: line.productId, quantity: line.quantity, unitPrice: line.unitPrice })),
@@ -173,14 +192,16 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
           aria-label="Products"
           className={`space-y-3 ${mobileView === 'products' ? 'block' : 'hidden'} lg:block`}
         >
-          <SearchBar value={query} onChange={setQuery} />
-          <CategoryChips categories={categories} activeSlug={activeCategory} onSelect={setActiveCategory} />
+          <div className="space-y-3 lg:sticky lg:top-14 lg:z-10 lg:bg-slate-50 lg:pb-2 lg:pt-1">
+            <SearchBar value={query} onChange={setQuery} />
+            <CategoryChips categories={categories} activeSlug={activeCategory} onSelect={setActiveCategory} />
+          </div>
           <ProductGrid products={filteredProducts} onAddToCart={handleAddToCart} />
         </section>
 
         <section
           aria-label="Current Sale"
-          className={`space-y-4 ${mobileView === 'bill' ? 'block' : 'hidden'} lg:block`}
+          className={`space-y-4 ${mobileView === 'bill' ? 'block' : 'hidden'} lg:sticky lg:top-[4.75rem] lg:block lg:max-h-[calc(100vh-5.5rem)] lg:self-start lg:overflow-y-auto`}
         >
         <Card>
           <h2 ref={billHeaderRef} className="mb-3 flex items-center gap-2 text-xl font-extrabold text-slate-900">
@@ -193,7 +214,12 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
           </h2>
 
           {lines.length === 0 ? (
-            <p className="py-6 text-center text-lg text-slate-500">No items in the bill yet.</p>
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                <Receipt size={22} />
+              </span>
+              <p className="text-lg font-semibold text-slate-500">No items in the bill yet.</p>
+            </div>
           ) : (
             <ul className="divide-y divide-slate-100">
               {lines.map((line) => (
@@ -272,6 +298,11 @@ export function CashierCounter({ products }: { products: PosProduct[] }) {
         </Card>
 
         {error && <p className="rounded-xl bg-danger-50 px-3 py-2 text-sm font-semibold text-danger-700">{error}</p>}
+        {demoSuccess && (
+          <p className="flex items-center gap-2 rounded-xl bg-success-50 px-3 py-2 text-sm font-semibold text-success-700">
+            <CheckCircle2 size={18} /> Demo sale complete! In the real app this would appear in your Sales Report.
+          </p>
+        )}
 
         <Button variant="success" size="xl" className="w-full" disabled={!canCompleteSale} onClick={handleCompleteSale}>
           <CheckCircle2 size={22} />

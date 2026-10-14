@@ -1,4 +1,4 @@
-import { Package } from 'lucide-react'
+import { Package, CheckCircle2 } from 'lucide-react'
 import { getCurrentUser } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
 import { AddProductForm } from '@/components/inventory/AddProductForm'
@@ -34,6 +34,8 @@ export default async function InventoryPage({
     return {
       id: product.id,
       title: product.title,
+      itemName: product.itemName,
+      brand: product.brand,
       categoryName: category?.name ?? 'Uncategorized',
       categorySlug: category?.slug ?? '',
       costPrice: product.costPrice,
@@ -114,9 +116,14 @@ export default async function InventoryPage({
       {activeTab === 'low' && (
         <>
           {lowStockProducts.length === 0 ? (
-            <p className="py-12 text-center text-lg text-slate-500">
-              Nothing low on stock — every product is above {lowStockThreshold} units.
-            </p>
+            <div className="flex flex-col items-center gap-2 py-12 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-success-50 text-success-600">
+                <CheckCircle2 size={22} />
+              </span>
+              <p className="text-lg font-semibold text-slate-500">
+                Nothing low on stock — every product is above {lowStockThreshold} units.
+              </p>
+            </div>
           ) : (
             <InventoryList
               categories={categories.map((category) => ({ slug: category.slug, name: category.name }))}

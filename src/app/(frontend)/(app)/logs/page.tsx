@@ -31,7 +31,12 @@ export default async function LogsPage() {
 
       {logs.length === 0 ? (
         <Card>
-          <p className="py-8 text-center text-lg text-slate-500">No activity yet.</p>
+          <div className="flex flex-col items-center gap-2 py-12 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-400">
+              <History size={22} />
+            </span>
+            <p className="text-lg font-semibold text-slate-500">No activity yet.</p>
+          </div>
         </Card>
       ) : (
         <Card className="p-0">

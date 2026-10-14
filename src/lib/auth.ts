@@ -34,3 +34,22 @@ export async function requireAdminPage() {
   if (user.role !== 'owner') redirect('/')
   return user
 }
+
+export const DEMO_BLOCKED_MESSAGE =
+  'This is a shared demo account — changes are not saved. Exit demo mode to use a real account.'
+
+// Demo accounts (see Users.isDemo) can browse every page freely — only mutations are
+// blocked. Call this as the very first line inside every Server Action that writes data
+// (create/update/delete), right after requireUser()/requireAdmin(). Throwing here is the
+// single, auditable choke point that guarantees a demo login — however it was obtained —
+// can never modify real store data, even if a client-side guard is bypassed or missing.
+//
+// Actions whose UI already has a polished inline-error slot (useActionState forms) should
+// instead check `user.isDemo` themselves and return { error: DEMO_BLOCKED_MESSAGE, ... } —
+// nicer than a thrown error crashing to the route's error boundary. Plain imperative actions
+// (no form state to return into) should call this and let the caller catch it client-side.
+export function assertNotDemo(user: { isDemo?: boolean | null }) {
+  if (user.isDemo) {
+    throw new Error(DEMO_BLOCKED_MESSAGE)
+  }
+}

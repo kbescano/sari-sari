@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { loggedInAndNotDemo } from './access'
 
 // Audit trail for inventory changes — who added or edited a product, and what changed.
 // Entries are created server-side only (see inventory/actions.ts); never edited after the fact.
@@ -11,9 +12,9 @@ export const ActivityLogs: CollectionConfig = {
   },
   access: {
     read: ({ req }) => Boolean(req.user),
-    create: ({ req }) => Boolean(req.user),
+    create: loggedInAndNotDemo,
     update: () => false,
-    delete: ({ req }) => Boolean(req.user),
+    delete: loggedInAndNotDemo,
   },
   fields: [
     { name: 'user', type: 'relationship', relationTo: 'users', required: true },
