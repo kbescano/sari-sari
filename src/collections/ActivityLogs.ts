@@ -28,6 +28,8 @@ export const ActivityLogs: CollectionConfig = {
         { label: 'Updated Pricing', value: 'pricing' },
         { label: 'Adjusted Stock', value: 'stock' },
         { label: 'Toggled Visibility', value: 'visibility' },
+        { label: 'Voided Sale', value: 'void' },
+        { label: 'Logged Expense', value: 'expense' },
       ],
     },
     { name: 'product', type: 'relationship', relationTo: 'products' },

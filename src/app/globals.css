@@ -2,9 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* A stronger ease-out than any built-in CSS easing — UI motion should feel like it's
+     arriving, not departing, so every transition in this app leads with this curve
+     instead of the default ease. */
+  --ease-out-snap: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
 @layer base {
   html {
-    font-size: 16px;
+    /* One notch down from the browser default — every rem-based spacing and radius value
+       in the app tightens proportionally along with it, for a denser, calmer layout. */
+    font-size: 15px;
     /* clip (not hidden) avoids making body/html a scroll container, which would break
        position: sticky for the nav header and other sticky elements throughout the app. */
     overflow-x: clip;
@@ -27,5 +36,44 @@
   button,
   [role='button'] {
     @apply min-h-touch-min;
+  }
+
+  /* Browser surfaces carry the design too — the parts nobody draws are the cheapest
+     signal that a UI was actually considered, not just assembled from defaults. */
+  ::selection {
+    background-color: theme('colors.primary.200');
+    color: theme('colors.primary.900');
+  }
+
+  input,
+  textarea {
+    caret-color: theme('colors.primary.600');
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: theme('colors.slate.300');
+    border-radius: 999px;
+    border: 2px solid theme('colors.slate.50');
+  }
+  * {
+    scrollbar-color: theme('colors.slate.300') transparent;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
   }
 }

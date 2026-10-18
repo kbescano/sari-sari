@@ -15,7 +15,15 @@ export function SukliCalculator() {
   if (paymentMethod === 'Credit/Utang') {
     return (
       <div className="rounded-xl bg-danger-50 p-4 text-center">
-        <p className="text-lg font-bold text-danger-700">No change due — recorded as Credit (Utang).</p>
+        <p className="text-sm font-semibold text-danger-700">No change due — recorded as Credit (Utang).</p>
+      </div>
+    )
+  }
+
+  if (paymentMethod === 'GCash') {
+    return (
+      <div className="rounded-xl bg-primary-50 p-4 text-center">
+        <p className="text-sm font-semibold text-primary-700">No change due — paid via GCash.</p>
       </div>
     )
   }
@@ -25,8 +33,8 @@ export function SukliCalculator() {
 
   return (
     <div className="space-y-3">
-      <label className="flex items-center gap-2 text-xl font-bold text-slate-900" htmlFor="cash-tendered">
-        <Banknote size={22} /> Cash Tendered
+      <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-900" htmlFor="cash-tendered">
+        <Banknote size={16} /> Cash Tendered
       </label>
       <input
         id="cash-tendered"
@@ -36,7 +44,7 @@ export function SukliCalculator() {
         value={cashTendered ?? ''}
         onChange={(event) => setCashTendered(event.target.value === '' ? null : Number(event.target.value))}
         placeholder="0.00"
-        className="h-touch-lg w-full rounded-xl border border-slate-300 px-4 text-2xl font-bold tabular-nums focus:outline-none focus:ring-4 focus:ring-primary-200 focus:border-primary-500"
+        className="h-touch-lg w-full rounded-xl border border-slate-300 px-3.5 text-lg font-semibold tabular-nums focus:outline-none focus:ring-4 focus:ring-primary-200 focus:border-primary-500"
       />
 
       <div className="flex flex-wrap gap-2">
@@ -45,7 +53,7 @@ export function SukliCalculator() {
             key={amount}
             type="button"
             onClick={() => setCashTendered(amount)}
-            className="h-touch-min flex-1 rounded-lg border border-slate-200 bg-white text-lg font-bold hover:bg-primary-50"
+            className="h-touch-min flex-1 rounded-lg border border-slate-200 bg-white text-sm font-semibold hover:bg-primary-50"
           >
             ₱{amount}
           </button>
@@ -57,8 +65,8 @@ export function SukliCalculator() {
           isInsufficient ? 'bg-danger-50' : 'bg-success-50'
         }`}
       >
-        <span className="text-xl font-bold text-slate-900">Change:</span>
-        <span className={`text-3xl font-extrabold tabular-nums ${isInsufficient ? 'text-danger-700' : 'text-success-700'}`}>
+        <span className="text-sm font-semibold text-slate-900">Change:</span>
+        <span className={`text-xl font-extrabold tabular-nums ${isInsufficient ? 'text-danger-700' : 'text-success-700'}`}>
           {change === null ? '—' : isInsufficient ? 'Insufficient cash' : formatPeso(change)}
         </span>
       </div>

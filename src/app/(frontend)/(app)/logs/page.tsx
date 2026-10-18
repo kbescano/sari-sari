@@ -1,4 +1,4 @@
-import { History, PackagePlus, Pencil, Tag, Boxes, Eye } from 'lucide-react'
+import { History, PackagePlus, Pencil, Tag, Boxes, Eye, Ban, TrendingDown } from 'lucide-react'
 import { requireAdminPage } from '@/lib/auth'
 import { getPayloadClient } from '@/lib/payload'
 import { Card } from '@/components/ui/Card'
@@ -9,6 +9,8 @@ const ACTION_ICONS = {
   pricing: Tag,
   stock: Boxes,
   visibility: Eye,
+  void: Ban,
+  expense: TrendingDown,
 } as const
 
 export default async function LogsPage() {
@@ -24,16 +26,16 @@ export default async function LogsPage() {
 
   return (
     <main className="mx-auto max-w-4xl space-y-4 p-4">
-      <h1 className="flex items-center gap-2 text-3xl font-extrabold text-slate-900">
-        <History size={28} className="text-primary-600" /> Activity Log
+      <h1 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+        <History size={20} className="text-primary-600" /> Activity Log
       </h1>
       <p className="text-base text-slate-500">Who added or edited inventory, and when.</p>
 
       {logs.length === 0 ? (
         <Card>
           <div className="flex flex-col items-center gap-2 py-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-400">
-              <History size={22} />
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-400">
+              <History size={18} />
             </span>
             <p className="text-lg font-semibold text-slate-500">No activity yet.</p>
           </div>
@@ -46,8 +48,8 @@ export default async function LogsPage() {
               const userEmail = typeof log.user === 'object' ? log.user.email : 'Unknown user'
               return (
                 <li key={log.id} className="flex items-start gap-3 px-4 py-3">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
-                    <Icon size={18} />
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+                    <Icon size={15} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="break-words text-base font-semibold text-slate-900">{log.summary}</p>

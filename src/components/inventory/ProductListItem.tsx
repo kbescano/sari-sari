@@ -22,6 +22,7 @@ export interface InventoryProduct {
   unitType: 'piece' | 'pack' | 'sachet'
   stockQuantity: number
   isActive: boolean
+  barcode: string
 }
 
 const QUICK_ADJUST = [1, 5, 10]
@@ -61,21 +62,21 @@ export function ProductListItem({
       <div className="flex min-w-0 flex-1 items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           {product.brand && (
-            <span className="mb-1 inline-block rounded-full bg-primary-50 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-primary-700">
+            <span className="mb-1 inline-block rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-700">
               {product.brand}
             </span>
           )}
           <div className="flex flex-wrap items-center gap-2">
-            <p className="break-words text-lg font-bold text-slate-900">{product.itemName}</p>
+            <p className="break-words text-sm font-semibold text-slate-900">{product.itemName}</p>
             {isOutOfStock && <Badge tone="unpaid">Out of stock</Badge>}
             {isLowStock && (
               <Badge tone="warning">
-                <AlertTriangle size={14} /> {product.stockQuantity} left
+                <AlertTriangle size={12} /> {product.stockQuantity} left
               </Badge>
             )}
             {!product.isActive && <Badge tone="neutral">Hidden</Badge>}
           </div>
-          <p className="text-base text-slate-500">
+          <p className="text-xs text-slate-500">
             {product.categoryName} · {formatPeso(product.sellingPrice)} / {product.unitType}{' '}
             {isAdmin && <span className="text-slate-400">(cost {formatPeso(product.costPrice)})</span>}
           </p>
@@ -87,9 +88,9 @@ export function ProductListItem({
               type="button"
               onClick={() => setIsEditingPrice(true)}
               aria-label="Edit product name, cost, and markup"
-              className="flex h-touch-min w-touch-min shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-primary-50 hover:text-primary-600"
+              className="flex h-touch-min w-touch-min shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-primary-50 hover:text-primary-600"
             >
-              <Tag size={20} />
+              <Tag size={16} />
             </button>
 
             <button
@@ -97,16 +98,16 @@ export function ProductListItem({
               disabled={isPending}
               onClick={() => runGuarded(() => toggleProductActiveAction(product.id, !product.isActive))}
               aria-label={product.isActive ? 'Hide from storefront and POS' : 'Show on storefront and POS'}
-              className="flex h-touch-min w-touch-min shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 disabled:opacity-50 sm:hidden"
+              className="flex h-touch-min w-touch-min shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 disabled:opacity-50 sm:hidden"
             >
-              {product.isActive ? <Eye size={20} /> : <EyeOff size={20} />}
+              {product.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
             </button>
           </>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <span className="w-10 shrink-0 text-center text-xl font-extrabold tabular-nums text-slate-900">
+      <div className="flex items-center gap-1.5">
+        <span className="w-8 shrink-0 text-center text-base font-bold tabular-nums text-slate-900">
           {product.stockQuantity}
         </span>
         {isAdmin && (
@@ -117,7 +118,7 @@ export function ProductListItem({
                 type="button"
                 disabled={isPending}
                 onClick={() => runGuarded(() => adjustStockAction(product.id, amount))}
-                className="h-touch-min shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 text-base font-bold text-success-700 hover:bg-success-50 disabled:opacity-50"
+                className="h-touch-min shrink-0 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-success-700 hover:bg-success-50 disabled:opacity-50"
               >
                 +{amount}
               </button>
@@ -126,7 +127,7 @@ export function ProductListItem({
               type="button"
               disabled={isPending || product.stockQuantity <= 0}
               onClick={() => runGuarded(() => adjustStockAction(product.id, -1))}
-              className="h-touch-min shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 text-base font-bold text-danger-600 hover:bg-danger-50 disabled:opacity-50"
+              className="h-touch-min shrink-0 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-danger-600 hover:bg-danger-50 disabled:opacity-50"
             >
               -1
             </button>
@@ -134,7 +135,7 @@ export function ProductListItem({
               type="button"
               disabled={isPending}
               onClick={() => runGuarded(() => toggleProductActiveAction(product.id, !product.isActive))}
-              className="hidden h-touch-min shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 text-base font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 sm:block"
+              className="hidden h-touch-min shrink-0 rounded-lg border border-slate-200 bg-white px-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50 sm:block"
             >
               {product.isActive ? 'Hide' : 'Show'}
             </button>
@@ -153,6 +154,7 @@ export function ProductListItem({
           costPrice={product.costPrice}
           markupType={product.markupType}
           markupValue={product.markupValue}
+          barcode={product.barcode}
           onClose={() => setIsEditingPrice(false)}
         />
       )}

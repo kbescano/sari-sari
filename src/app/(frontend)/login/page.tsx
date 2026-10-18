@@ -14,14 +14,14 @@ export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginAction, initialState)
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-primary-50 to-slate-50 p-4">
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-600 text-white shadow-card">
-            <Store size={28} />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white">
+            <Store size={18} />
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900">Store Owner Login</h1>
-          <p className="text-base text-slate-500">Sign in to manage your store</p>
+          <h1 className="text-lg font-bold text-slate-900">Store Owner Login</h1>
+          <p className="text-sm text-slate-500">Sign in to manage your store</p>
         </div>
 
         <Card>
@@ -29,22 +29,22 @@ export default function LoginPage() {
             <div>
               <Label htmlFor="email">Email</Label>
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                <Input id="email" name="email" type="email" required autoComplete="email" className="pl-10" />
+                <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <Input id="email" name="email" type="email" required autoComplete="email" className="pl-9" />
               </div>
             </div>
 
             <div>
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <Input
                   id="password"
                   name="password"
                   type="password"
                   required
                   autoComplete="current-password"
-                  className="pl-10"
+                  className="pl-9"
                 />
               </div>
             </div>
@@ -54,7 +54,7 @@ export default function LoginPage() {
             )}
 
             <Button type="submit" size="xl" className="w-full" disabled={isPending}>
-              <LogIn size={22} />
+              <LogIn size={16} />
               {isPending ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>

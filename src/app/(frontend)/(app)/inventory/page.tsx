@@ -45,6 +45,7 @@ export default async function InventoryPage({
       unitType: product.unitType,
       stockQuantity: product.stockQuantity,
       isActive: product.isActive ?? true,
+      barcode: product.barcode ?? '',
     }
   })
 
@@ -88,8 +89,8 @@ export default async function InventoryPage({
   return (
     <main className="mx-auto max-w-4xl space-y-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="flex items-center gap-2 text-3xl font-extrabold text-slate-900">
-          <Package size={28} className="text-primary-600" /> Inventory
+        <h1 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+          <Package size={20} className="text-primary-600" /> Inventory
         </h1>
         {activeTab === 'stock' && (
           <AddProductForm categories={categories.map((category) => ({ id: category.id, name: category.name }))} />
@@ -117,8 +118,8 @@ export default async function InventoryPage({
         <>
           {lowStockProducts.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-12 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-success-50 text-success-600">
-                <CheckCircle2 size={22} />
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-success-50 text-success-600">
+                <CheckCircle2 size={18} />
               </span>
               <p className="text-lg font-semibold text-slate-500">
                 Nothing low on stock — every product is above {lowStockThreshold} units.

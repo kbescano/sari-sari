@@ -1,9 +1,11 @@
-import { BarChart3, TrendingUp, ShoppingBag, Wallet, Layers, Tag } from 'lucide-react'
+import { BarChart3, TrendingUp, TrendingDown, ShoppingBag, Wallet, Layers, Tag, Download } from 'lucide-react'
 import { getPayloadClient } from '@/lib/payload'
+import { getCurrentUser } from '@/lib/auth'
 import { getDateRange, PERIOD_LABELS, type SalesPeriod } from '@/lib/dateRange'
 import { Card } from '@/components/ui/Card'
 import { PeriodFilter } from '@/components/sales/PeriodFilter'
 import { BestSellerCard, type BestSellerRow } from '@/components/sales/BestSellerCard'
+import { TransactionRow } from '@/components/sales/TransactionRow'
 import { formatPeso } from '@/lib/currency'
 
 const VALID_PERIODS: SalesPeriod[] = ['day', 'week', 'month', 'year', 'all', 'range']
@@ -16,6 +18,9 @@ export default async function SalesReportPage({
   const { period: periodParam, from, to } = await searchParams
   const period: SalesPeriod = VALID_PERIODS.includes(periodParam as SalesPeriod) ? (periodParam as SalesPeriod) : 'day'
   const { start, end } = getDateRange(period, from, to)
+
+  const user = await getCurrentUser()
+  const isAdmin = user?.role === 'owner'
 
   const payload = await getPayloadClient()
   const settings = await payload.findGlobal({ slug: 'store-settings' })
@@ -47,6 +52,16 @@ export default async function SalesReportPage({
     )
     return sum + orderProfit
   }, 0)
+
+  // Same period window as the orders query above — expenses use their own `spentAt` date
+  // field rather than createdAt, since an expense can be backdated to when it was paid.
+  const { docs: expenses } = await payload.find({
+    collection: 'expenses',
+    where: Object.keys(dateConstraints).length ? { spentAt: dateConstraints } : {},
+    limit: 1000,
+  })
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0)
+  const netIncome = netProfit - totalExpenses
 
   // Best sellers by category and by item×brand, computed from the same period-filtered orders
   // above — product/category come pre-resolved via depth:2 rather than a separate query.
@@ -108,11 +123,23 @@ export default async function SalesReportPage({
     uncollectedDebt = unpaidEntries.reduce((sum, entry) => sum + entry.totalAmount, 0)
   }
 
+  const exportParams = new URLSearchParams({ period })
+  if (from) exportParams.set('from', from)
+  if (to) exportParams.set('to', to)
+
   return (
     <main className="mx-auto max-w-5xl space-y-4 p-4">
-      <h1 className="flex items-center gap-2 text-3xl font-extrabold text-slate-900">
-        <BarChart3 size={28} className="text-primary-600" /> Sales Report
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+          <BarChart3 size={20} className="text-primary-600" /> Sales Report
+        </h1>
+        <a
+          href={`/api/sales/export?${exportParams.toString()}`}
+          className="flex h-touch-min items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-base font-bold text-slate-700 shadow-card transition-[background-color,transform] duration-150 ease-[var(--ease-out-snap)] hover:bg-slate-50 active:scale-[0.97]"
+        >
+          <Download size={15} /> Export CSV
+        </a>
+      </div>
 
       <PeriodFilter activePeriod={period} from={from} to={to} />
 
@@ -123,43 +150,67 @@ export default async function SalesReportPage({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <div className="flex items-center gap-2 text-base font-bold text-slate-500">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-success-50 text-success-700">
-              <TrendingUp size={18} />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-success-50 text-success-700">
+              <TrendingUp size={15} />
             </span>
             Total Sales
           </div>
-          <p className="mt-3 text-4xl font-extrabold tabular-nums text-success-700">{formatPeso(totalSales)}</p>
+          <p className="mt-3 text-2xl font-extrabold tabular-nums text-success-700">{formatPeso(totalSales)}</p>
         </Card>
 
         <Card>
           <div className="flex items-center gap-2 text-base font-bold text-slate-500">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
-              <ShoppingBag size={18} />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+              <ShoppingBag size={15} />
             </span>
             Number of Sales
           </div>
-          <p className="mt-3 text-4xl font-extrabold tabular-nums text-slate-900">{orders.length}</p>
+          <p className="mt-3 text-2xl font-extrabold tabular-nums text-slate-900">{orders.length}</p>
         </Card>
 
         <Card>
           <div className="flex items-center gap-2 text-base font-bold text-slate-500">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
-              <TrendingUp size={18} />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700">
+              <TrendingUp size={15} />
             </span>
-            Net Profit
+            Gross Profit
           </div>
-          <p className="mt-3 text-4xl font-extrabold tabular-nums text-primary-700">{formatPeso(netProfit)}</p>
+          <p className="mt-3 text-2xl font-extrabold tabular-nums text-primary-700">{formatPeso(netProfit)}</p>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-2 text-base font-bold text-slate-500">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-danger-50 text-danger-600">
+              <TrendingDown size={15} />
+            </span>
+            Expenses
+          </div>
+          <p className="mt-3 text-2xl font-extrabold tabular-nums text-danger-600">{formatPeso(totalExpenses)}</p>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-2 text-base font-bold text-slate-500">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-success-50 text-success-700">
+              <TrendingUp size={15} />
+            </span>
+            Net Income
+          </div>
+          <p
+            className={`mt-3 text-2xl font-extrabold tabular-nums ${netIncome < 0 ? 'text-danger-600' : 'text-success-700'}`}
+          >
+            {formatPeso(netIncome)}
+          </p>
         </Card>
 
         {settings.isUtangEnabled && (
           <Card className="border-danger-200 bg-danger-50/40">
             <div className="flex items-center gap-2 text-base font-bold text-danger-700">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-danger-700">
-                <Wallet size={18} />
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-danger-700">
+                <Wallet size={15} />
               </span>
               Uncollected Credit (Utang)
             </div>
-            <p className="mt-3 text-4xl font-extrabold tabular-nums text-danger-600">{formatPeso(uncollectedDebt)}</p>
+            <p className="mt-3 text-2xl font-extrabold tabular-nums text-danger-600">{formatPeso(uncollectedDebt)}</p>
           </Card>
         )}
       </div>
@@ -170,23 +221,24 @@ export default async function SalesReportPage({
         </div>
         {orders.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-              <ShoppingBag size={22} />
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
+              <ShoppingBag size={18} />
             </span>
             <p className="text-lg font-semibold text-slate-500">No sales in this period.</p>
           </div>
         ) : (
           <ul className="divide-y divide-slate-100">
             {orders.map((order) => (
-              <li key={order.id} className="flex items-center justify-between px-4 py-3">
-                <div>
-                  <p className="font-bold text-slate-900">{order.orderNumber}</p>
-                  <p className="text-sm text-slate-500">
-                    {order.customerName} · {new Date(order.createdAt).toLocaleString()}
-                  </p>
-                </div>
-                <p className="text-lg font-extrabold tabular-nums text-slate-900">{formatPeso(order.totalAmount)}</p>
-              </li>
+              <TransactionRow
+                key={order.id}
+                orderId={order.id}
+                orderNumber={order.orderNumber}
+                customerName={order.customerName}
+                createdAt={order.createdAt}
+                totalAmount={order.totalAmount}
+                paymentMethod={order.paymentMethod}
+                isAdmin={isAdmin}
+              />
             ))}
           </ul>
         )}

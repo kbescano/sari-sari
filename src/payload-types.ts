@@ -74,6 +74,7 @@ export interface Config {
     orders: Order;
     'debt-ledger': DebtLedger;
     'activity-logs': ActivityLog;
+    expenses: Expense;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -88,6 +89,7 @@ export interface Config {
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'debt-ledger': DebtLedgerSelect<false> | DebtLedgerSelect<true>;
     'activity-logs': ActivityLogsSelect<false> | ActivityLogsSelect<true>;
+    expenses: ExpensesSelect<false> | ExpensesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -286,7 +288,7 @@ export interface Order {
   /**
    * "Credit/Utang" is only selectable in POS UI when the store's Utang feature is enabled.
    */
-  paymentMethod: 'Cash' | 'Credit/Utang';
+  paymentMethod: 'Cash' | 'GCash' | 'Credit/Utang';
   status: 'Pending' | 'Completed' | 'Cancelled';
   updatedAt: string;
   createdAt: string;
@@ -323,12 +325,33 @@ export interface DebtLedger {
 export interface ActivityLog {
   id: number;
   user: number | User;
-  action: 'create' | 'rename' | 'pricing' | 'stock' | 'visibility';
+  action: 'create' | 'rename' | 'pricing' | 'stock' | 'visibility' | 'void' | 'expense';
   product?: (number | null) | Product;
   /**
    * Human-readable description of the change.
    */
   summary: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "expenses".
+ */
+export interface Expense {
+  id: number;
+  /**
+   * e.g. "Restock soft drinks", "Electric bill"
+   */
+  description: string;
+  amount: number;
+  category: 'Restock' | 'Utilities' | 'Rent' | 'Transportation' | 'Supplies' | 'Other';
+  /**
+   * When the money actually went out — used for period filtering on the Sales Report.
+   */
+  spentAt: string;
+  notes?: string | null;
+  loggedBy: number | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -383,6 +406,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'activity-logs';
         value: number | ActivityLog;
+      } | null)
+    | ({
+        relationTo: 'expenses';
+        value: number | Expense;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -564,6 +591,20 @@ export interface ActivityLogsSelect<T extends boolean = true> {
   action?: T;
   product?: T;
   summary?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "expenses_select".
+ */
+export interface ExpensesSelect<T extends boolean = true> {
+  description?: T;
+  amount?: T;
+  category?: T;
+  spentAt?: T;
+  notes?: T;
+  loggedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }

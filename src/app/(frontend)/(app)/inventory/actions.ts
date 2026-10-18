@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { getPayloadClient } from '@/lib/payload'
 import { assertNotDemo, DEMO_BLOCKED_MESSAGE, requireAdmin, requireUser } from '@/lib/auth'
-import type { Payload } from 'payload'
+import { logActivity } from '@/lib/activityLog'
 
 export interface CreateProductState {
   error: string | null
@@ -24,19 +24,6 @@ function formatMarkup(markupType: 'percentage' | 'fixed', markupValue: number) {
   return markupType === 'fixed' ? `+₱${markupValue}` : `+${markupValue}%`
 }
 
-async function logActivity(
-  payload: Payload,
-  userId: number,
-  action: 'create' | 'rename' | 'pricing' | 'stock' | 'visibility',
-  productId: number,
-  summary: string,
-) {
-  await payload.create({
-    collection: 'activity-logs',
-    data: { user: userId, action, product: productId, summary },
-  })
-}
-
 export async function createProductAction(
   _prevState: CreateProductState,
   formData: FormData,
@@ -54,6 +41,7 @@ export async function createProductAction(
   const markupValue = Number(formData.get('markupValue') ?? 0)
   const unitType = String(formData.get('unitType') ?? 'piece') as 'piece' | 'pack' | 'sachet'
   const stockQuantity = Number(formData.get('stockQuantity') ?? 0)
+  const barcode = String(formData.get('barcode') ?? '').trim()
 
   if (!title || !brand || !categoryId || Number.isNaN(costPrice)) {
     return { error: 'Please fill in the product name, brand, category, and cost price.', success: false }
@@ -66,6 +54,7 @@ export async function createProductAction(
       itemName: title,
       brand,
       slug: slugify(title),
+      barcode: barcode || undefined,
       category: categoryId,
       costPrice,
       markupType,
@@ -82,8 +71,8 @@ export async function createProductAction(
     payload,
     user.id,
     'create',
-    product.id,
     `Added "${title}" — cost ₱${costPrice}, ${formatMarkup(markupType, markupValue)} markup, starting stock ${stockQuantity}`,
+    product.id,
   )
 
   revalidatePath('/inventory')
@@ -110,8 +99,8 @@ export async function adjustStockAction(productId: number, delta: number) {
     payload,
     user.id,
     'stock',
-    product.id,
     `${delta > 0 ? '+' : ''}${delta} stock on "${product.title}" (${product.stockQuantity} → ${newQuantity})`,
+    product.id,
   )
 
   revalidatePath('/inventory')
@@ -131,8 +120,8 @@ export async function toggleProductActiveAction(productId: number, isActive: boo
     payload,
     user.id,
     'visibility',
-    product.id,
     `${isActive ? 'Showed' : 'Hid'} "${product.title}" ${isActive ? 'on' : 'from'} storefront and POS`,
+    product.id,
   )
 
   revalidatePath('/inventory')
@@ -158,6 +147,7 @@ export async function updateProductAction(
   const costPrice = Number(formData.get('costPrice'))
   const markupType = String(formData.get('markupType') ?? 'percentage') as 'percentage' | 'fixed'
   const markupValue = Number(formData.get('markupValue') ?? 0)
+  const barcode = String(formData.get('barcode') ?? '').trim()
 
   if (!productId || !title || Number.isNaN(costPrice) || Number.isNaN(markupValue)) {
     return { error: 'Please enter a product name, a valid cost price, and markup.', success: false }
@@ -169,11 +159,11 @@ export async function updateProductAction(
     collection: 'products',
     id: productId,
     // sellingPrice is recomputed server-side from costPrice + markup (see Products.ts hook).
-    data: { title, costPrice, markupType, markupValue },
+    data: { title, costPrice, markupType, markupValue, barcode: barcode || null },
   })
 
   if (title !== product.title) {
-    await logActivity(payload, user.id, 'rename', product.id, `Renamed "${product.title}" to "${title}"`)
+    await logActivity(payload, user.id, 'rename', `Renamed "${product.title}" to "${title}"`, product.id)
   }
 
   if (costPrice !== product.costPrice || markupType !== product.markupType || markupValue !== product.markupValue) {
@@ -181,8 +171,8 @@ export async function updateProductAction(
       payload,
       user.id,
       'pricing',
-      product.id,
       `Updated pricing for "${title}" — cost ₱${product.costPrice} → ₱${costPrice}, markup ${formatMarkup(product.markupType, product.markupValue)} → ${formatMarkup(markupType, markupValue)}`,
+      product.id,
     )
   }
 

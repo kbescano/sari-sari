@@ -1,10 +1,11 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
-import { X, Pencil } from 'lucide-react'
+import { useActionState, useEffect, useState } from 'react'
+import { X, Pencil, ScanLine } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input, Label } from '@/components/ui/Input'
 import { MarkupPricingFields, type MarkupType } from './MarkupPricingFields'
+import { BarcodeScannerModal } from '@/components/shared/BarcodeScannerModal'
 import { updateProductAction, type UpdateProductState } from '@/app/(frontend)/(app)/inventory/actions'
 
 const initialState: UpdateProductState = { error: null, success: false }
@@ -15,6 +16,7 @@ export function EditPricingModal({
   costPrice,
   markupType,
   markupValue,
+  barcode: initialBarcode,
   onClose,
 }: {
   productId: number
@@ -22,9 +24,12 @@ export function EditPricingModal({
   costPrice: number
   markupType: MarkupType
   markupValue: number
+  barcode: string
   onClose: () => void
 }) {
   const [state, formAction, isPending] = useActionState(updateProductAction, initialState)
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
+  const [barcode, setBarcode] = useState(initialBarcode)
 
   useEffect(() => {
     if (state.success) onClose()
@@ -34,12 +39,12 @@ export function EditPricingModal({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-md rounded-3xl bg-white p-6 shadow-card-hover"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-card-hover"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-xl font-extrabold text-slate-900">
-            <Pencil size={22} className="text-primary-600" /> Edit Product
+          <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
+            <Pencil size={16} className="text-primary-600" /> Edit Product
           </h2>
           <button
             type="button"
@@ -47,7 +52,7 @@ export function EditPricingModal({
             aria-label="Close"
             className="flex h-touch-min w-touch-min items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100"
           >
-            <X size={20} />
+            <X size={16} />
           </button>
         </div>
 
@@ -61,6 +66,27 @@ export function EditPricingModal({
 
           <MarkupPricingFields defaultCostPrice={costPrice} defaultMarkupType={markupType} defaultMarkupValue={markupValue} />
 
+          <div className="sm:col-span-2">
+            <Label htmlFor="editBarcode">Barcode (optional)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="editBarcode"
+                name="barcode"
+                value={barcode}
+                onChange={(event) => setBarcode(event.target.value)}
+                placeholder="Scan or type a barcode"
+              />
+              <button
+                type="button"
+                onClick={() => setIsScannerOpen(true)}
+                aria-label="Scan barcode"
+                className="flex h-touch-lg w-touch-lg shrink-0 items-center justify-center rounded-xl border-2 border-primary-500 text-primary-600 transition-[background-color,transform] duration-150 ease-[var(--ease-out-snap)] hover:bg-primary-50 active:scale-[0.97]"
+              >
+                <ScanLine size={16} />
+              </button>
+            </div>
+          </div>
+
           {state.error && (
             <p className="rounded-lg bg-danger-50 px-3 py-2 text-sm font-semibold text-danger-700 sm:col-span-2">
               {state.error}
@@ -71,6 +97,16 @@ export function EditPricingModal({
             {isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </form>
+
+        {isScannerOpen && (
+          <BarcodeScannerModal
+            onDetected={(code) => {
+              setBarcode(code)
+              setIsScannerOpen(false)
+            }}
+            onClose={() => setIsScannerOpen(false)}
+          />
+        )}
       </div>
     </div>
   )

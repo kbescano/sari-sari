@@ -27,7 +27,7 @@ export default async function PosPage() {
 
   return (
     <main className="mx-auto max-w-6xl p-4">
-      <h1 className="mb-4 text-3xl font-extrabold text-slate-900">Point of Sale</h1>
+      <h1 className="mb-4 text-xl font-bold text-slate-900">Point of Sale</h1>
       <CashierCounter
         products={sortedProducts.map((product) => ({
           id: String(product.id),
@@ -38,6 +38,7 @@ export default async function PosPage() {
           unitType: product.unitType,
           stockQuantity: product.stockQuantity,
           categoryName: typeof product.category === 'object' ? product.category.name : 'Uncategorized',
+          barcode: product.barcode ?? '',
         }))}
       />
     </main>

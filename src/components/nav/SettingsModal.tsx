@@ -30,14 +30,14 @@ export function SettingsModal({ settings, onClose }: { settings: StoreSettingsVa
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-extrabold text-slate-900">Store Settings</h2>
+          <h2 className="text-lg font-bold text-slate-900">Store Settings</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
             className="flex h-touch-min w-touch-min items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100"
           >
-            <X size={22} />
+            <X size={16} />
           </button>
         </div>
 

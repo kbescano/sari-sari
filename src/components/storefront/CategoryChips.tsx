@@ -17,8 +17,8 @@ export function CategoryChips({
       <button
         type="button"
         onClick={() => onSelect(null)}
-        className={`h-touch-min rounded-2xl px-5 text-lg font-semibold transition-colors ${
-          activeSlug === null ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        className={`h-touch-min rounded-full px-4 text-sm font-semibold transition-colors ${
+          activeSlug === null ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
         }`}
       >
         All
@@ -30,8 +30,8 @@ export function CategoryChips({
             key={category.slug}
             type="button"
             onClick={() => onSelect(category.slug)}
-            className={`h-touch-min rounded-2xl px-5 text-lg font-semibold transition-colors ${
-              isActive ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            className={`h-touch-min rounded-full px-4 text-sm font-semibold transition-colors ${
+              isActive ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             {category.name}

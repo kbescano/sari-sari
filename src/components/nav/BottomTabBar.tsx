@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ShoppingCart, Package, BarChart3, History } from 'lucide-react'
+import { ShoppingCart, Package, BarChart3, TrendingDown, History } from 'lucide-react'
 
 const TABS = [
   { href: '/', label: 'POS', icon: ShoppingCart },
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/sales', label: 'Sales', icon: BarChart3 },
+  { href: '/expenses', label: 'Expenses', icon: TrendingDown },
 ] as const
 
 const ADMIN_TABS = [{ href: '/logs', label: 'Logs', icon: History }] as const
@@ -29,8 +30,10 @@ export function BottomTabBar({ isAdmin }: { isAdmin: boolean }) {
             href={href}
             className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-slate-400"
           >
-            <Icon size={26} strokeWidth={isActive ? 2.5 : 2} className={isActive ? 'text-primary-600' : 'text-slate-400'} />
-            <span className={`text-xs font-semibold ${isActive ? 'text-primary-600' : 'text-slate-400'}`}>{label}</span>
+            <Icon size={21} strokeWidth={isActive ? 2.25 : 1.75} className={isActive ? 'text-slate-900' : 'text-slate-400'} />
+            <span className={`text-[10px] font-semibold tracking-tight ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
+              {label}
+            </span>
           </Link>
         )
       })}

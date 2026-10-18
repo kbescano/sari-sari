@@ -1,17 +1,20 @@
 'use client'
 
 import { useActionState, useEffect, useRef, useState } from 'react'
-import { PackagePlus, X } from 'lucide-react'
+import { PackagePlus, X, ScanLine } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input, Label, Select } from '@/components/ui/Input'
 import { MarkupPricingFields } from './MarkupPricingFields'
+import { BarcodeScannerModal } from '@/components/shared/BarcodeScannerModal'
 import { createProductAction, type CreateProductState } from '@/app/(frontend)/(app)/inventory/actions'
 
 const initialState: CreateProductState = { error: null, success: false }
 
 export function AddProductForm({ categories }: { categories: { id: number; name: string }[] }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
+  const [barcode, setBarcode] = useState('')
   const [state, formAction, isPending] = useActionState(createProductAction, initialState)
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -19,6 +22,7 @@ export function AddProductForm({ categories }: { categories: { id: number; name:
     if (state.success) {
       formRef.current?.reset()
       // eslint-disable-next-line react-hooks/set-state-in-effect
+      setBarcode('')
       setIsOpen(false)
     }
   }, [state.success])
@@ -26,7 +30,7 @@ export function AddProductForm({ categories }: { categories: { id: number; name:
   if (!isOpen) {
     return (
       <Button onClick={() => setIsOpen(true)}>
-        <PackagePlus size={20} />
+        <PackagePlus size={16} />
         Add Product
       </Button>
     )
@@ -35,8 +39,8 @@ export function AddProductForm({ categories }: { categories: { id: number; name:
   return (
     <Card className="border-primary-200">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-xl font-extrabold text-slate-900">
-          <PackagePlus size={22} className="text-primary-600" /> Add Product
+        <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
+          <PackagePlus size={16} className="text-primary-600" /> Add Product
         </h2>
         <button
           type="button"
@@ -44,7 +48,7 @@ export function AddProductForm({ categories }: { categories: { id: number; name:
           aria-label="Close"
           className="flex h-touch-min w-touch-min items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100"
         >
-          <X size={20} />
+          <X size={16} />
         </button>
       </div>
 
@@ -82,6 +86,27 @@ export function AddProductForm({ categories }: { categories: { id: number; name:
           </Select>
         </div>
 
+        <div className="sm:col-span-2">
+          <Label htmlFor="barcode">Barcode (optional)</Label>
+          <div className="flex gap-2">
+            <Input
+              id="barcode"
+              name="barcode"
+              value={barcode}
+              onChange={(event) => setBarcode(event.target.value)}
+              placeholder="Scan or type a barcode"
+            />
+            <button
+              type="button"
+              onClick={() => setIsScannerOpen(true)}
+              aria-label="Scan barcode"
+              className="flex h-touch-lg w-touch-lg shrink-0 items-center justify-center rounded-xl border-2 border-primary-500 text-primary-600 transition-[background-color,transform] duration-150 ease-[var(--ease-out-snap)] hover:bg-primary-50 active:scale-[0.97]"
+            >
+              <ScanLine size={16} />
+            </button>
+          </div>
+        </div>
+
         <MarkupPricingFields />
 
         <div className="sm:col-span-2">
@@ -99,6 +124,16 @@ export function AddProductForm({ categories }: { categories: { id: number; name:
           {isPending ? 'Adding...' : 'Add Product'}
         </Button>
       </form>
+
+      {isScannerOpen && (
+        <BarcodeScannerModal
+          onDetected={(code) => {
+            setBarcode(code)
+            setIsScannerOpen(false)
+          }}
+          onClose={() => setIsScannerOpen(false)}
+        />
+      )}
     </Card>
   )
 }

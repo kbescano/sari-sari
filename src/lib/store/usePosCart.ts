@@ -8,7 +8,7 @@ export interface PosCartLine {
   quantity: number
 }
 
-export type PaymentMethod = 'Cash' | 'Credit/Utang'
+export type PaymentMethod = 'Cash' | 'GCash' | 'Credit/Utang'
 
 interface PosCartState {
   lines: PosCartLine[]

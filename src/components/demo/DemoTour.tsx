@@ -82,11 +82,11 @@ export function DemoTour({ isAdmin }: { isAdmin: boolean }) {
             aria-label="Skip tour"
             className="flex h-touch-min w-touch-min shrink-0 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100"
           >
-            <X size={20} />
+            <X size={16} />
           </button>
         </div>
 
-        <h2 className="mb-1.5 text-xl font-extrabold text-slate-900">{step.title}</h2>
+        <h2 className="mb-1.5 text-lg font-bold text-slate-900">{step.title}</h2>
         <p className="mb-5 text-base text-slate-600">{step.body}</p>
 
         <div className="mb-4 flex items-center justify-center gap-1.5">

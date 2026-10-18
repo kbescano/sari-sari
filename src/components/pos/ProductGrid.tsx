@@ -13,6 +13,7 @@ export interface PosProduct {
   unitType: 'piece' | 'pack' | 'sachet'
   stockQuantity: number
   categoryName: string
+  barcode: string
 }
 
 export function ProductGrid({
@@ -47,7 +48,7 @@ export function ProductGrid({
       {Array.from(groups.entries()).map(([categoryName, categoryProducts]) => (
         <section key={categoryName}>
           <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-400">{categoryName}</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {categoryProducts.map((product) => {
               const isOutOfStock = product.stockQuantity <= 0
               return (
@@ -64,20 +65,20 @@ export function ProductGrid({
                     })
                     onAddToCart?.(event.currentTarget.getBoundingClientRect())
                   }}
-                  className="flex min-h-touch-lg min-w-0 flex-col items-start justify-center gap-2 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0 disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
+                  className="flex min-h-touch-lg min-w-0 flex-col items-start justify-center gap-1.5 rounded-xl border border-slate-200 bg-white p-3.5 text-left shadow-card transition-[transform,box-shadow] duration-150 ease-[var(--ease-out-snap)] hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0 disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
                 >
                   {product.brand && (
-                    <span className="inline-block rounded-full bg-primary-50 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-primary-700">
+                    <span className="inline-block rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-700">
                       {product.brand}
                     </span>
                   )}
-                  <span className="w-full break-words text-lg font-bold leading-snug text-slate-900">{product.itemName}</span>
-                  <span className="text-base font-semibold text-primary-700">
+                  <span className="w-full break-words text-sm font-semibold leading-snug text-slate-900">{product.itemName}</span>
+                  <span className="text-sm font-semibold text-primary-700">
                     {formatPeso(product.sellingPrice)} / {product.unitType}
                   </span>
                   {isOutOfStock && (
-                    <span className="flex items-center gap-1 text-sm font-bold text-danger-600">
-                      <PackageX size={14} /> Out of stock
+                    <span className="flex items-center gap-1 text-xs font-semibold text-danger-600">
+                      <PackageX size={12} /> Out of stock
                     </span>
                   )}
                 </button>

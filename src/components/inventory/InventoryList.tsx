@@ -55,7 +55,7 @@ export function InventoryList({
           {Array.from(groups.entries()).map(([categoryName, categoryProducts]) => (
             <section key={categoryName}>
               <h2 className="mb-1 text-sm font-bold uppercase tracking-wide text-slate-400">{categoryName}</h2>
-              <div className="rounded-3xl border border-slate-100 bg-white px-4 shadow-card">
+              <div className="rounded-2xl border border-slate-100 bg-white px-4 shadow-card">
                 {categoryProducts.map((product) => (
                   <ProductListItem key={product.id} product={product} lowStockThreshold={lowStockThreshold} isAdmin={isAdmin} />
                 ))}

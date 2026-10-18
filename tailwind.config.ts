@@ -54,24 +54,42 @@ const config: Config = {
         ],
       },
       fontSize: {
-        base: ['1rem', { lineHeight: '1.5rem' }],
-        lg: ['1.125rem', { lineHeight: '1.75rem' }],
-        xl: ['1.25rem', { lineHeight: '1.875rem' }],
-        '2xl': ['1.5rem', { lineHeight: '2rem' }],
-        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
-        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+        // A compact, editorial scale — every step is deliberately one notch smaller than a
+        // "default" app would use. Most of the app already composes from these semantic
+        // names (text-base/lg/xl/2xl/3xl/4xl), so tightening the scale here is the single
+        // highest-leverage change toward a smaller, calmer overall type rhythm.
+        xs: ['0.75rem', { lineHeight: '1rem' }],
+        sm: ['0.8125rem', { lineHeight: '1.125rem' }],
+        base: ['0.875rem', { lineHeight: '1.25rem' }],
+        lg: ['0.9375rem', { lineHeight: '1.375rem' }],
+        xl: ['1.0625rem', { lineHeight: '1.5rem' }],
+        '2xl': ['1.1875rem', { lineHeight: '1.625rem' }],
+        '3xl': ['1.375rem', { lineHeight: '1.75rem' }],
+        '4xl': ['1.625rem', { lineHeight: '2rem' }],
+      },
+      fontWeight: {
+        // Softened one step each — a premium UI reads as confident at 600, not 800. Whole
+        // hundreds only, so non-variable fallback fonts (Segoe UI, Roboto) still snap cleanly.
+        bold: '600',
+        extrabold: '700',
       },
       spacing: {
         // Named touch-target sizes: use on every tappable control
-        'touch-min': '48px',
-        'touch-lg': '56px',
+        'touch-min': '40px',
+        'touch-lg': '46px',
       },
       boxShadow: {
-        card: '0 1px 2px 0 rgb(15 23 42 / 0.03), 0 1px 3px 0 rgb(15 23 42 / 0.06)',
-        'card-hover': '0 8px 20px -4px rgb(15 23 42 / 0.1), 0 2px 6px -2px rgb(15 23 42 / 0.06)',
+        // Hairline-first — a premium surface reads through a 1px border, not a cast
+        // shadow. These stay nearly invisible at rest and only gain presence on hover/press.
+        card: '0 1px 2px 0 rgb(15 23 42 / 0.03)',
+        'card-hover': '0 4px 16px -6px rgb(15 23 42 / 0.12)',
       },
       borderRadius: {
-        '4xl': '2rem',
+        lg: '0.625rem',
+        xl: '0.75rem',
+        '2xl': '0.875rem',
+        '3xl': '1.125rem',
+        '4xl': '1.375rem',
       },
     },
   },

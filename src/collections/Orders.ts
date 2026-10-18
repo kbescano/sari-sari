@@ -68,6 +68,7 @@ export const Orders: CollectionConfig = {
       defaultValue: 'Cash',
       options: [
         { label: 'Cash', value: 'Cash' },
+        { label: 'GCash', value: 'GCash' },
         { label: 'Credit / Utang', value: 'Credit/Utang' },
       ],
       admin: {

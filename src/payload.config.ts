@@ -11,6 +11,7 @@ import { Products } from './collections/Products'
 import { Orders } from './collections/Orders'
 import { DebtLedger } from './collections/DebtLedger'
 import { ActivityLogs } from './collections/ActivityLogs'
+import { Expenses } from './collections/Expenses'
 import { StoreSettings } from './collections/StoreSettings'
 
 const filename = fileURLToPath(import.meta.url)
@@ -24,7 +25,7 @@ export default buildConfig({
     user: Users.slug,
   },
   editor: lexicalEditor(),
-  collections: [Users, Media, Categories, Products, Orders, DebtLedger, ActivityLogs],
+  collections: [Users, Media, Categories, Products, Orders, DebtLedger, ActivityLogs, Expenses],
   globals: [StoreSettings],
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
