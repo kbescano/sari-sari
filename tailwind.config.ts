@@ -5,38 +5,66 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Primary brand — Apple system-blue — buttons, nav, links, active states
+        // The entire app is built from exactly three colors: a warm near-black ink
+        // (#0f0a0a), a warm greige/off-white (#f5efed), and a vivid teal-blue accent
+        // (#087ca7). `slate` and `primary` are tonal ramps interpolated from these three
+        // anchors (all three appear verbatim at their respective steps); every component
+        // already composes from these semantic names, so overriding them here cascades the
+        // new palette through the whole app without touching each file.
+        slate: {
+          50: '#f5efed',
+          100: '#e3dddb',
+          200: '#d0cac9',
+          300: '#b7b1b0',
+          400: '#948f8e',
+          500: '#706a69',
+          600: '#4f4a4a',
+          700: '#363131',
+          800: '#241f1e',
+          900: '#0f0a0a',
+          950: '#0a0707',
+        },
+        // Teal-blue — the one accent color, used verbatim at 600 (contrast-checked at
+        // 4.7:1 against white text, so no extra darkening was needed for solid buttons).
+        // 50-500 are lighter tints for badges and selected-but-quiet surfaces; 700-900
+        // darken by reducing lightness in the same hue, not by blending toward the ink, so
+        // hover/press states stay recognizably blue instead of muddying toward brown.
         primary: {
-          50: '#eef6ff',
-          100: '#dbedff',
-          200: '#b3d9ff',
-          400: '#3395ff',
-          500: '#0a84ff',
-          600: '#007aff',
-          700: '#0062cc',
-          800: '#004c9e',
-          900: '#003a78',
+          50: '#ebf5f8',
+          100: '#d3e7ef',
+          200: '#b0d5e3',
+          300: '#84bed3',
+          400: '#57a6c3',
+          500: '#3091b5',
+          600: '#087ca7',
+          700: '#066283',
+          800: '#054861',
+          900: '#033344',
         },
-        // Positive money values — sales, paid status
+        // Success reuses the same teal-blue ramp — in this palette, "positive" and "brand
+        // accent" are the same color, not a separate green.
         success: {
-          50: '#ecfdf5',
-          500: '#10b981',
-          600: '#059669',
-          700: '#047857',
+          50: '#ebf5f8',
+          500: '#3091b5',
+          600: '#087ca7',
+          700: '#066283',
         },
-        // Unpaid credit, destructive actions, alerts
+        // Danger/warning stay functionally distinct (destructive confirms, out-of-stock,
+        // low-stock) but are mixed as muted, desaturated tones — brick and gold — so they
+        // sit quietly alongside the cool blue-gray family instead of a clashing stock
+        // red/amber.
         danger: {
-          50: '#fef2f2',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
+          50: '#fbebe9',
+          500: '#b1544a',
+          600: '#9c4038',
+          700: '#7e332c',
+          800: '#672a24',
         },
-        // Low stock warnings
         warning: {
-          50: '#fffbeb',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
+          50: '#faf3df',
+          400: '#cfa855',
+          500: '#b8913c',
+          600: '#977527',
         },
       },
       fontFamily: {
