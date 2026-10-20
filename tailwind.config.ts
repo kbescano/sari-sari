@@ -5,66 +5,65 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // The entire app is built from exactly three colors: a warm near-black ink
-        // (#0f0a0a), a warm greige/off-white (#f5efed), and a vivid teal-blue accent
-        // (#087ca7). `slate` and `primary` are tonal ramps interpolated from these three
-        // anchors (all three appear verbatim at their respective steps); every component
-        // already composes from these semantic names, so overriding them here cascades the
-        // new palette through the whole app without touching each file.
+        // This palette comes from a labeled e-commerce reference (Brand, Add to cart,
+        // Sale, Section tint, Background, Text) — all six turn out to be the same blue
+        // hue (~197-207°) at different lightness, so it reads as one coherent system:
+        // white → section tint → ... → text at the neutral end, and Sale → Brand → Add to
+        // cart forms the accent ramp from light/vivid to dark/serious. All six appear
+        // verbatim at their respective steps.
         slate: {
-          50: '#f5efed',
-          100: '#e3dddb',
-          200: '#d0cac9',
-          300: '#b7b1b0',
-          400: '#948f8e',
-          500: '#706a69',
-          600: '#4f4a4a',
-          700: '#363131',
-          800: '#241f1e',
-          900: '#0f0a0a',
-          950: '#0a0707',
+          50: '#ffffff', // Background
+          100: '#e4f4fc', // Section tint
+          200: '#dfe3e7',
+          300: '#c3ccd3',
+          400: '#a0aeb9',
+          500: '#7e909f',
+          600: '#5b7286',
+          700: '#3d596f',
+          800: '#24445d',
+          900: '#062a47', // Text
+          950: '#041c30',
         },
-        // Teal-blue — the one accent color, used verbatim at 600 (contrast-checked at
-        // 4.7:1 against white text, so no extra darkening was needed for solid buttons).
-        // 50-500 are lighter tints for badges and selected-but-quiet surfaces; 700-900
-        // darken by reducing lightness in the same hue, not by blending toward the ink, so
-        // hover/press states stay recognizably blue instead of muddying toward brown.
+        // Sale (light/vivid) → Brand (main, used at 600 for solid buttons — contrast-
+        // checked at 5.7:1 against white text) → Add to cart (dark, hover/press territory
+        // at 700). 800-900 continue darkening Add to cart's hue for the deepest states.
         primary: {
-          50: '#ebf5f8',
-          100: '#d3e7ef',
-          200: '#b0d5e3',
-          300: '#84bed3',
-          400: '#57a6c3',
-          500: '#3091b5',
-          600: '#087ca7',
-          700: '#066283',
-          800: '#054861',
-          900: '#033344',
+          50: '#edf9fd',
+          100: '#d7f1fb',
+          200: '#b1e3f7',
+          300: '#6dccf0',
+          400: '#1fb0e8', // Sale
+          500: '#178ec8',
+          600: '#0e6ba8', // Brand
+          700: '#0a3f6b', // Add to cart
+          800: '#072f4f',
+          900: '#052138',
         },
-        // Success reuses the same teal-blue ramp — in this palette, "positive" and "brand
-        // accent" are the same color, not a separate green.
+        // Success reuses the same blue ramp — "Sale" is already the brightest, most
+        // positive-reading step, so it doubles as the Sales Report's "positive" color
+        // rather than introducing a separate green.
         success: {
-          50: '#ebf5f8',
-          500: '#3091b5',
-          600: '#087ca7',
-          700: '#066283',
+          50: '#edf9fd',
+          500: '#178ec8',
+          600: '#0e6ba8',
+          700: '#0a3f6b',
         },
         // Danger/warning stay functionally distinct (destructive confirms, out-of-stock,
-        // low-stock) but are mixed as muted, desaturated tones — brick and gold — so they
-        // sit quietly alongside the cool blue-gray family instead of a clashing stock
-        // red/amber.
+        // low-stock) — pushed to clearly-red and clearly-yellow hues respectively so they
+        // don't blend into the bronze accent at a glance, while staying muted enough to sit
+        // quietly in a warm palette instead of a clashing stock red/amber.
         danger: {
-          50: '#fbebe9',
-          500: '#b1544a',
-          600: '#9c4038',
-          700: '#7e332c',
-          800: '#672a24',
+          50: '#fbeae7',
+          500: '#b2503f',
+          600: '#9c3a2e',
+          700: '#7d2e25',
+          800: '#66251e',
         },
         warning: {
-          50: '#faf3df',
-          400: '#cfa855',
-          500: '#b8913c',
-          600: '#977527',
+          50: '#fbf3df',
+          400: '#d9ab3f',
+          500: '#c3932a',
+          600: '#a1781d',
         },
       },
       fontFamily: {
